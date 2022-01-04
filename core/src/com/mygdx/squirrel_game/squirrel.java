@@ -29,7 +29,7 @@ public class squirrel extends GameObject{
     public Texture render(float delta) {
         elapsedTime += delta;
 
-        if (elapsedTime > 1 / 15f){
+        if (elapsedTime > 1 / 20f){
             squirrel_running_animation_index++;
             elapsedTime = 0;
         }
@@ -43,7 +43,7 @@ public class squirrel extends GameObject{
 
     public void loadRunningAnimation() {
         for (int i = 0; i < 8; i++) {
-            squirrel_running_animation.add(new Texture(Gdx.files.internal("squirrel_running_1.png")));//"squirrel_running_" + (i + 1) + ".png")));
+            squirrel_running_animation.add(new Texture(Gdx.files.internal("squirrel_running_" + (i + 1) + ".png")));
         }
     }
 }
