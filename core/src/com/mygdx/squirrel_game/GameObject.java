@@ -4,11 +4,13 @@ import com.badlogic.gdx.Gdx;
 
 // gameobject is responsible for location and in the future object detection (rectangles/hitboxes)
 public abstract class GameObject {
-    private float width, height, xpos, ypos;
+    private float width, height, xpos, ypos, dx, dy;
 
     public GameObject(float width, float height) {
         this.width = width;
         this.height = height;
+        dx = 0;
+        dy = 0;
     }
 
     public void moveTo(float xpos2, float ypos2) {
@@ -19,6 +21,16 @@ public abstract class GameObject {
     public void moveBy(float dx, float dy) {
         setXPos(this.getXPos() + dx);
         setYPos(this.getYPos() + dy);
+        this.dx = dx;
+        this.dy = dy;
+    }
+
+    public float getDX() {
+        return dx;
+    }
+
+    public float getDY() {
+        return dy;
     }
 
     public float getXPos() {

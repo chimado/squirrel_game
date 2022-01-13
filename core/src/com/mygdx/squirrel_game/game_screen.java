@@ -26,13 +26,13 @@ public class game_screen implements Screen {
 
     public game_screen(final squirrel_game game) {
         this.game = game;
-        player = new squirrel(this.game);
+        player = new squirrel();
 
         // create the camera and the SpriteBatch
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, 1280, 800);
 
-        player.moveTo(640, 480);
+        player.moveTo(640, 300);
     }
 
     @Override
@@ -48,8 +48,13 @@ public class game_screen implements Screen {
 		game.batch.setProjectionMatrix(camera.combined);
 
         game.batch.begin();
-        game.batch.draw(player.render(Gdx.graphics.getDeltaTime()), player.getXPos(), player.getYPos(), player.getHeight(), player.getWidth());
+        game.batch.draw(player.render(Gdx.graphics.getDeltaTime()), player.getXPos(), player.getYPos(), player.getWidth(), player.getHeight());
         game.batch.end();
+
+        // gets player input
+        player.moveBy(0, 0);
+        if (Gdx.input.isKeyPressed(Keys.RIGHT)) player.moveBy(200 * Gdx.graphics.getDeltaTime(), 0);
+        if (Gdx.input.isKeyPressed(Keys.LEFT)) player.moveBy(-200 * Gdx.graphics.getDeltaTime(), 0);
 
         if (Gdx.input.isKeyPressed(Keys.ESCAPE)){
             dispose();
@@ -79,5 +84,6 @@ public class game_screen implements Screen {
 
 	@Override
 	public void dispose() {
+        player.dispose();
 	}
 }
