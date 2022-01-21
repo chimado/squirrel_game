@@ -23,10 +23,14 @@ public class game_screen implements Screen {
     squirrel player;
     
     OrthographicCamera camera;
+    float deltaTime;
+    Boolean isPaused;
 
     public game_screen(final squirrel_game game) {
         this.game = game;
         player = new squirrel();
+        deltaTime = 0;
+        isPaused = false;
 
         // create the camera and the SpriteBatch
 		camera = new OrthographicCamera();
@@ -39,6 +43,12 @@ public class game_screen implements Screen {
     public void render(float delta){
         ScreenUtils.clear(0, 0, 0.2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        deltaTime = Gdx.graphics.getDeltaTime();
+
+        // pauses the game
+        if (isPaused){
+            deltaTime = 0;
+        }
 
         // tell the camera to update its matrices.
 		camera.update();
@@ -48,13 +58,15 @@ public class game_screen implements Screen {
 		game.batch.setProjectionMatrix(camera.combined);
 
         game.batch.begin();
-        game.batch.draw(player.render(Gdx.graphics.getDeltaTime()), player.getXPos(), player.getYPos(), player.getWidth(), player.getHeight());
+        game.batch.draw(player.render(deltaTime), player.getXPos(), player.getYPos(), player.getWidth(), player.getHeight());
         game.batch.end();
 
         // gets player input
         player.moveBy(0, 0);
-        if (Gdx.input.isKeyPressed(Keys.RIGHT)) player.moveBy(200 * Gdx.graphics.getDeltaTime(), 0);
-        if (Gdx.input.isKeyPressed(Keys.LEFT)) player.moveBy(-200 * Gdx.graphics.getDeltaTime(), 0);
+        if (Gdx.input.isKeyPressed(Keys.RIGHT)) player.moveBy(200 * deltaTime, 0);
+        if (Gdx.input.isKeyPressed(Keys.LEFT)) player.moveBy(-200 * deltaTime, 0);
+        if (Gdx.input.isKeyPressed(Keys.ENTER)) isPaused = true;
+        if (Gdx.input.isKeyPressed(Keys.BACKSPACE)) isPaused = false;
 
         if (Gdx.input.isKeyPressed(Keys.ESCAPE)){
             dispose();

@@ -2,7 +2,6 @@ package com.mygdx.squirrel_game;
 
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.math.MathUtils;
@@ -10,32 +9,49 @@ import com.badlogic.gdx.graphics.Texture;
 
 
 public class squirrel extends GameObject{
-
     Boolean isRunning;
     Boolean isFacingLeft;
+    Boolean isJumping;
+    Boolean isFalling;
     Texture outputTexture;
     Texture basicSquirrel;
-    float elapsedTime;
-    int squirrel_running_animation_index;
-    Array<Texture> squirrel_running_animation;
+    ObjectAnimation squirrel_running_animation;
 
     public squirrel(){
         super(48 * 3, 32 * 3);
-        elapsedTime = 0;
-        squirrel_running_animation_index = 0;
         isRunning = false;
         isFacingLeft = false;
+        isJumping = false;
+        isFalling = false;
 
-        squirrel_running_animation = new Array<Texture>();
-        loadRunningAnimation();
+        squirrel_running_animation = new ObjectAnimation();
+        squirrel_running_animation.loadAnimation("squirrel_running_", 8);
         basicSquirrel = new Texture(Gdx.files.internal("squirrel_basic.png"));
     }
 
     // returns the texture to be rendered
     public Texture render(float delta) {
+        // checks if the player is moving up or down
+        /*
+        if (super.getDY() > 0) {
+            isJumping = true;
+        }
+
+        else if (super.getDY() < 0) {
+            isFalling = true;
+            isJumping = false;
+        }
+
+        else {
+            isFalling = false;
+            isJumping = false;
+        }*/
+
         // checks if the player is moving left or right
-        if (super.getDX() != 0){
-            isRunning = true;
+        if (super.getDX() != 0) {
+            if (!isJumping && !isFalling) {
+                isRunning = true;
+            }
 
             if (super.getDX() < 0) {
                 isFacingLeft = true;
@@ -46,30 +62,17 @@ public class squirrel extends GameObject{
             }
         }
 
-        else {
+        else if (delta != 0) {
             isRunning = false;
         }
 
+        // checks if the player is running
         if (isRunning) {
-            elapsedTime += delta;
-
-            // counts the time elapsed since the last frame change
-            // 1 / 20f is 20fps
-            if (elapsedTime > 1 / 20f){
-                squirrel_running_animation_index++;
-                elapsedTime = 0;
-            }
-
-            if (squirrel_running_animation_index > squirrel_running_animation.size - 1){
-                squirrel_running_animation_index = 0;
-            }
-
-            outputTexture = squirrel_running_animation.get(squirrel_running_animation_index);
+            outputTexture = squirrel_running_animation.getFrame(delta);
         }
 
         else {
-            elapsedTime = 0;
-            squirrel_running_animation_index = 0;
+            squirrel_running_animation.resetAnimation();
             outputTexture = basicSquirrel;
         }
 
@@ -87,16 +90,7 @@ public class squirrel extends GameObject{
         super.setXPos(super.getXPos() + super.getWidth() * -1);
     }
 
-    // load all of the sprites onto the texture array for animating the player
-    public void loadRunningAnimation() {
-        for (int i = 0; i < 8; i++) {
-            squirrel_running_animation.add(new Texture(Gdx.files.internal("squirrel_running_" + (i + 1) + ".png")));
-        }
-    }
-
     public void dispose() {
-        for (Texture frame : squirrel_running_animation){
-            frame.dispose();
-        }
+        squirrel_running_animation.dispose();
     }
 }
