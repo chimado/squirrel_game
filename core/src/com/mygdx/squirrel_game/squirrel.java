@@ -58,8 +58,12 @@ public class squirrel extends GameObject{
 
         // checks if the player is moving left or right
         if (super.getDX() != 0) {
-            if (!isJumping && !isFalling) {
+            if (super.getDY() == 0) {
                 isRunning = true;
+            }
+
+            else {
+                isRunning = false;
             }
 
             if (super.getDX() < 0) {

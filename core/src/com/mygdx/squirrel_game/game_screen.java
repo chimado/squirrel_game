@@ -67,8 +67,8 @@ public class game_screen implements Screen {
         if (player.overlaps(testRect) && (!player.isJumping || player.fallTime > 2f)) {
             player.moveBy(0, testRect.y - player.y);
             player.fallTime = 1f;}
-        else player.moveBy(0, -50 * deltaTime * player.fallTime);
-        if (Gdx.input.isKeyPressed(Keys.UP)) player.moveYBy(150 * deltaTime);
+        else player.moveBy(0, -70 * deltaTime * player.fallTime);
+        if (Gdx.input.isKeyPressed(Keys.UP) && (player.overlaps(testRect) || player.getDY() * -1 < 200 * deltaTime)) player.moveYBy(200 * deltaTime);
         if (Gdx.input.isKeyPressed(Keys.RIGHT) && !Gdx.input.isKeyPressed(Keys.LEFT)) player.moveXBy(200 * deltaTime);
         if (Gdx.input.isKeyPressed(Keys.LEFT) && !Gdx.input.isKeyPressed(Keys.RIGHT)) player.moveXBy(-200 * deltaTime);
         if (Gdx.input.isKeyPressed(Keys.ENTER)) isPaused = true;
