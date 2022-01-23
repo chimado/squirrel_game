@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.mygdx.squirrel_game.squirrel.squirrelState;
 import com.badlogic.gdx.graphics.GL20;
 
 
@@ -64,11 +65,11 @@ public class game_screen implements Screen {
         game.batch.end();
 
         // gets player input and updates the player's position
-        if (player.overlaps(testRect) && (!player.isJumping || player.fallTime > 2f)) {
+        if (player.overlaps(testRect) && (!(player.state == squirrelState.Jumping) || player.fallTime > 2f)) {
             player.moveBy(0, testRect.y - player.y);
             player.fallTime = 1f;}
         else player.moveBy(0, -70 * deltaTime * player.fallTime);
-        if (Gdx.input.isKeyPressed(Keys.UP) && (player.overlaps(testRect) || player.getDY() * -1 < 200 * deltaTime)) player.moveYBy(200 * deltaTime);
+        if (Gdx.input.isKeyPressed(Keys.UP) && (player.overlaps(testRect) || player.state == squirrelState.Jumping) && player.getDY() * -1 < 200 * deltaTime) player.moveYBy(200 * deltaTime);
         if (Gdx.input.isKeyPressed(Keys.RIGHT) && !Gdx.input.isKeyPressed(Keys.LEFT)) player.moveXBy(200 * deltaTime);
         if (Gdx.input.isKeyPressed(Keys.LEFT) && !Gdx.input.isKeyPressed(Keys.RIGHT)) player.moveXBy(-200 * deltaTime);
         if (Gdx.input.isKeyPressed(Keys.ENTER)) isPaused = true;

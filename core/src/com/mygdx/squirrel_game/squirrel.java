@@ -8,25 +8,28 @@ import com.badlogic.gdx.math.Rectangle;
 
 
 public class squirrel extends GameObject{
+    public enum squirrelState {
+        Running,
+        Falling,
+        Jumping,
+        Idle
+    }
+
     public float fallTime;
-    Boolean isRunning;
     Boolean isFacingLeft;
-    Boolean isJumping;
-    Boolean isFalling;
     Texture outputTexture;
     Texture basicSquirrel;
     ObjectAnimation squirrel_running_animation;
     ObjectAnimation squirrel_jumping_animation;
+    squirrelState state;
 
     public squirrel(float x, float y){
         super(48 * 3, 32 * 3);
         super.x = x;
         super.y = y;
         fallTime = 1f;
-        isRunning = false;
         isFacingLeft = false;
-        isJumping = false;
-        isFalling = false;
+        state = squirrelState.Idle;
 
         squirrel_running_animation = new ObjectAnimation();
         squirrel_running_animation.loadAnimation("squirrel_running_", 8);
@@ -42,28 +45,22 @@ public class squirrel extends GameObject{
         // checks if the player is moving up or down
         if (super.getDY() > 0) {
             fallTime += delta;
-            isJumping = true;
+            state = squirrelState.Jumping;
         }
 
         else if (super.getDY() < 0) {
             fallTime += delta;
-            isFalling = true;
-            isJumping = false;
+            state = squirrelState.Falling;
         }
 
         else if (delta != 0) {
-            isFalling = false;
-            isJumping = false;
+            state = squirrelState.Idle;
         }
 
         // checks if the player is moving left or right
         if (super.getDX() != 0) {
             if (super.getDY() == 0) {
-                isRunning = true;
-            }
-
-            else {
-                isRunning = false;
+                state = squirrelState.Running;
             }
 
             if (super.getDX() < 0) {
@@ -75,12 +72,12 @@ public class squirrel extends GameObject{
             }
         }
 
-        else if (delta != 0) {
-            isRunning = false;
+        else if (delta != 0 && state == squirrelState.Running) {
+            state = squirrelState.Idle;
         }
 
         // checks if the player is running
-        if (isRunning) {
+        if (state == squirrelState.Running) {
             outputTexture = squirrel_running_animation.getFrame(delta);
         }
 
