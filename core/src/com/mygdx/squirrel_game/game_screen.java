@@ -14,14 +14,18 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.mygdx.squirrel_game.squirrel.squirrelState;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 
 public class game_screen implements Screen {
     final squirrel_game game;
     squirrel player;
+    final int worldWidth = 1280, worldHeight = 800;
     
     Rectangle testRect;
     OrthographicCamera camera;
+    Viewport viewport;
     float deltaTime;
     Boolean isPaused;
 
@@ -37,9 +41,10 @@ public class game_screen implements Screen {
         testRect.width = 1280;
         testRect.height = 10;
 
-        // create the camera and the SpriteBatch
+        // create the camera and the viewport
 		camera = new OrthographicCamera();
-		camera.setToOrtho(false, 1280, 800);
+		camera.setToOrtho(false, worldWidth, worldHeight);
+        viewport = new StretchViewport(worldWidth, worldHeight, camera);
     }
 
     @Override
@@ -83,6 +88,8 @@ public class game_screen implements Screen {
 
     @Override
 	public void resize(int width, int height) {
+        viewport.update(width, height, true);
+        game.batch.setProjectionMatrix(camera.combined);
 	}
 
 	@Override
