@@ -21,6 +21,7 @@ public class squirrel extends GameObject{
     Texture basicSquirrel;
     ObjectAnimation squirrel_running_animation;
     ObjectAnimation squirrel_jumping_animation;
+    ObjectAnimation squirrel_falling_animation;
     squirrelState state;
 
     public squirrel(float x, float y){
@@ -35,13 +36,13 @@ public class squirrel extends GameObject{
         squirrel_running_animation.loadAnimation("squirrel_running_", 8);
         squirrel_jumping_animation = new ObjectAnimation();
         squirrel_jumping_animation.loadAnimation("squirrel_running_", 6);
+        squirrel_falling_animation = new ObjectAnimation();
+        squirrel_falling_animation.loadAnimation("squirrel_falling_", 7);
         basicSquirrel = new Texture(Gdx.files.internal("squirrel_basic.png"));
     }
 
     // returns the texture to be rendered
     public Texture render(float delta) {
-        outputTexture = basicSquirrel;
-
         // checks if the player is moving up or down
         if (super.getDY() > 0) {
             fallTime += delta;
@@ -76,13 +77,38 @@ public class squirrel extends GameObject{
             state = squirrelState.Idle;
         }
 
-        // checks if the player is running
-        if (state == squirrelState.Running) {
-            outputTexture = squirrel_running_animation.getFrame(delta);
-        }
+        // checks which animation should play according to the state enum
+        switch (state) {
+            case Running:
+                outputTexture = squirrel_running_animation.getFrame(delta);
+                squirrel_falling_animation.resetAnimation();
+                squirrel_jumping_animation.resetAnimation();
+                break;
+            
+            case Falling:
+                outputTexture = squirrel_falling_animation.getFrame(delta);
+                squirrel_running_animation.resetAnimation();
+                squirrel_jumping_animation.resetAnimation();
+                break;
+            
+            case Jumping:
+                if (squirrel_jumping_animation.currentFrame >= squirrel_jumping_animation.frames.size - 2){
+                    outputTexture = squirrel_jumping_animation.frames.get(squirrel_jumping_animation.currentFrame);
+                }
 
-        else {
-            squirrel_running_animation.resetAnimation();
+                else {
+                    outputTexture = squirrel_jumping_animation.getFrame(delta);
+                }
+                squirrel_falling_animation.resetAnimation();
+                squirrel_running_animation.resetAnimation();
+                break;
+            
+            case Idle:
+                outputTexture = basicSquirrel;
+                squirrel_running_animation.resetAnimation();
+                squirrel_jumping_animation.resetAnimation();
+                squirrel_falling_animation.resetAnimation();
+                break;
         }
 
         // checks if the last movement has been to the left and mirrors the texture
@@ -102,5 +128,6 @@ public class squirrel extends GameObject{
     public void dispose() {
         squirrel_running_animation.dispose();
         squirrel_jumping_animation.dispose();
+        squirrel_falling_animation.dispose();
     }
 }
