@@ -26,6 +26,16 @@ public abstract class GameObject extends Rectangle{
         this.dy = dy;
     }
 
+    public void moveXBy(float dx) {
+        super.x += dx;
+        this.dx = dx;
+    }
+
+    public void moveYBy(float dy) {
+        super.y += dy;
+        this.dy = dy;
+    }
+
     public float getDX() {
         return dx;
     }

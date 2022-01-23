@@ -1,15 +1,14 @@
 package com.mygdx.squirrel_game;
 
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 
 
 public class squirrel extends GameObject{
+    public float fallTime;
     Boolean isRunning;
     Boolean isFacingLeft;
     Boolean isJumping;
@@ -23,6 +22,7 @@ public class squirrel extends GameObject{
         super(48 * 3, 32 * 3);
         super.x = x;
         super.y = y;
+        fallTime = 1f;
         isRunning = false;
         isFacingLeft = false;
         isJumping = false;
@@ -41,15 +41,17 @@ public class squirrel extends GameObject{
 
         // checks if the player is moving up or down
         if (super.getDY() > 0) {
+            fallTime += delta;
             isJumping = true;
         }
 
         else if (super.getDY() < 0) {
+            fallTime += delta;
             isFalling = true;
             isJumping = false;
         }
 
-        else {
+        else if (delta != 0) {
             isFalling = false;
             isJumping = false;
         }
