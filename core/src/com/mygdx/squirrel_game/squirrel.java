@@ -1,13 +1,11 @@
 package com.mygdx.squirrel_game;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.math.Rectangle;
 
 
 public class squirrel extends GameObject{
+    // is responsible for storing the player's state information
     public enum squirrelState {
         Running,
         Falling,
@@ -15,8 +13,10 @@ public class squirrel extends GameObject{
         Idle
     }
 
-    public float fallTime;
+    public float fallTime; // is the time in milliseconds the player is in the air, used for gravity calculations
     Boolean isFacingLeft;
+    Boolean isAffectedByGravity;
+    Boolean canJump;
     Texture outputTexture;
     Texture basicSquirrel;
     ObjectAnimation squirrel_running_animation;
@@ -30,8 +30,11 @@ public class squirrel extends GameObject{
         super.y = y;
         fallTime = 1f;
         isFacingLeft = false;
+        isAffectedByGravity = false;
+        canJump = false;
         state = squirrelState.Idle;
 
+        // initializes the animations and loads all the textures into them
         squirrel_running_animation = new ObjectAnimation();
         squirrel_running_animation.loadAnimation("squirrel_running_", 8);
         squirrel_jumping_animation = new ObjectAnimation();
@@ -125,7 +128,7 @@ public class squirrel extends GameObject{
         super.x = (super.x + super.width * -1);
     }
 
-    public void dispose() {
+    public void dispose(){
         squirrel_running_animation.dispose();
         squirrel_jumping_animation.dispose();
         squirrel_falling_animation.dispose();

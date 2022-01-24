@@ -1,6 +1,5 @@
 package com.mygdx.squirrel_game;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Rectangle;
 
 // gameobject is responsible for location and in the future object detection (rectangles/hitboxes)

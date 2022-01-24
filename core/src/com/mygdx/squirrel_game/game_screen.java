@@ -1,5 +1,7 @@
 package com.mygdx.squirrel_game;
 
+import java.lang.Math;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
@@ -21,25 +23,26 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 public class game_screen implements Screen {
     final squirrel_game game;
     squirrel player;
-    final int worldWidth = 1280, worldHeight = 800;
+    // store the world's size
+    static final int worldWidth = 1280, worldHeight = 800;
     
-    Rectangle testRect;
     OrthographicCamera camera;
     Viewport viewport;
     float deltaTime;
     Boolean isPaused;
+    Array<Platform> platforms; // stores the platforms for the game
 
     public game_screen(final squirrel_game game) {
         this.game = game;
         player = new squirrel(640, 300);
         deltaTime = 0;
         isPaused = false;
+        platforms = new Array<Platform>();
 
-        testRect = new Rectangle();
-        testRect.x = 0;
-        testRect.y = 200;
-        testRect.width = 1280;
-        testRect.height = 10;
+        // temporary initialization of the platforms array (in the future this will be replaced by a world generation algorithm)
+        for (int i = 0; i < 1; i++){
+            platforms.add(new Platform(300, 30, 300 + i * 100, 300 + i * 100, false));
+        }
 
         // create the camera and the viewport
 		camera = new OrthographicCamera();
@@ -49,7 +52,7 @@ public class game_screen implements Screen {
 
     @Override
     public void render(float delta){
-        ScreenUtils.clear(0, 0, 0.2f, 1);
+        ScreenUtils.clear(0, 0, 1, 0.5f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         deltaTime = Gdx.graphics.getDeltaTime();
 
@@ -61,20 +64,42 @@ public class game_screen implements Screen {
         // tell the camera to update its matrices.
 		camera.update();
 
-		// tell the SpriteBatch to render in the
-		// coordinate system specified by the camera.
+		// tell the SpriteBatch to render in the coordinate system specified by the camera.
 		game.batch.setProjectionMatrix(camera.combined);
 
         game.batch.begin();
         game.batch.draw(player.render(deltaTime), player.x, player.y, player.width, player.height);
+        for (Platform platform : platforms) {
+            game.batch.draw(platform.getPlatformTexture(), platform.x + 60, platform.y, platform.width, platform.height);
+
+            if (platform.hasDirt) {
+                game.batch.draw(platform.getDirtTexture(), platform.x + 60, platform.y - platform.height * 4.2f, platform.width, platform.y + platform.height);
+            }
+        }
         game.batch.end();
 
         // gets player input and updates the player's position
-        if (player.overlaps(testRect) && (!(player.state == squirrelState.Jumping) || player.fallTime > 2f)) {
-            player.moveBy(0, testRect.y - player.y);
-            player.fallTime = 1f;}
-        else player.moveBy(0, -70 * deltaTime * player.fallTime);
-        if (Gdx.input.isKeyPressed(Keys.UP) && (player.overlaps(testRect) || player.state == squirrelState.Jumping) && player.getDY() * -1 < 200 * deltaTime) player.moveYBy(200 * deltaTime);
+        for (Platform platform : platforms) {
+            if (player.overlaps(platform) && (!(player.state == squirrelState.Jumping) || player.fallTime > 2f)) {
+                if (platform.y - player.y > 0) player.moveBy(0, platform.y - player.y);
+                player.moveBy(0, platform.y - player.y);
+                player.fallTime = 1f;
+            }
+            else player.isAffectedByGravity = true;
+            
+            if ((player.overlaps(platform) || player.state == squirrelState.Jumping) && 10 * deltaTime * (float)Math.pow(player.fallTime, 4) < 250 * deltaTime) player.canJump = true;
+            else player.canJump = false;
+        }
+
+        if (player.isAffectedByGravity) {
+            player.moveBy(0, -10 * deltaTime * (float)Math.pow(player.fallTime, 4));
+            player.isAffectedByGravity = false;
+        }
+
+        if (Gdx.input.isKeyPressed(Keys.UP) && player.canJump) {
+            player.moveYBy(250 * deltaTime);
+        }
+
         if (Gdx.input.isKeyPressed(Keys.RIGHT) && !Gdx.input.isKeyPressed(Keys.LEFT)) player.moveXBy(200 * deltaTime);
         if (Gdx.input.isKeyPressed(Keys.LEFT) && !Gdx.input.isKeyPressed(Keys.RIGHT)) player.moveXBy(-200 * deltaTime);
         if (Gdx.input.isKeyPressed(Keys.ENTER)) isPaused = true;
