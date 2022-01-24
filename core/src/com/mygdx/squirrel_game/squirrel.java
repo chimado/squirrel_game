@@ -14,7 +14,6 @@ public class squirrel extends GameObject{
     }
 
     public float fallTime; // is the time in milliseconds the player is in the air, used for gravity calculations
-    Boolean isFacingLeft;
     Boolean isAffectedByGravity;
     Boolean canJump;
     Texture outputTexture;
@@ -29,7 +28,6 @@ public class squirrel extends GameObject{
         super.x = x;
         super.y = y;
         fallTime = 1f;
-        isFacingLeft = false;
         isAffectedByGravity = false;
         canJump = false;
         state = squirrelState.Idle;
@@ -115,17 +113,11 @@ public class squirrel extends GameObject{
         }
 
         // checks if the last movement has been to the left and mirrors the texture
-        if ((isFacingLeft && super.width > 0) || (!isFacingLeft && super.width < 0)) {
+        if ((super.isFacingLeft && super.width > 0) || (!super.isFacingLeft && super.width < 0)) {
             flip();
         }
 
         return outputTexture;
-    }
-
-    // flips the texture
-    public void flip(){
-        super.width = (super.width * -1);
-        super.x = (super.x + super.width * -1);
     }
 
     public void dispose(){
