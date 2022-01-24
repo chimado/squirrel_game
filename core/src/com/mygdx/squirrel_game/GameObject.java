@@ -49,7 +49,5 @@ public abstract class GameObject extends Rectangle{
     public void flip(){
         super.width = (super.width * -1);
         super.x = (super.x + super.width * -1);
-
-        System.out.println("facing left: " + isFacingLeft + "\nx: " + super.x + "\ny: " + super.y + "\nwidth: " + super.width);
     }
 }

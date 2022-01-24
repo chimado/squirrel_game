@@ -44,7 +44,7 @@ public class game_screen implements Screen {
 
         // temporary initialization of the platforms array (in the future this will be replaced by a world generation algorithm)
         for (int i = 0; i < 5; i++){
-            platforms.add(new Platform(300, 30, 400 + i * 200, 100 + i * 200, false));
+            platforms.add(new Platform(300, 30, 400 + i * 200, 100 + i * 200, true));
         }
 
         // create the camera and the viewport
@@ -70,23 +70,28 @@ public class game_screen implements Screen {
 
 		// tell the SpriteBatch to render in the coordinate system specified by the camera.
 		game.batch.setProjectionMatrix(camera.combined);
-        shapeRenderer.begin(ShapeType.Line);
-        shapeRenderer.setColor(Color.CYAN);
-        shapeRenderer.rect(player.x, player.y, player.width, player.height);
-        
+
+        // show hitboxes for debugging purposes
+        if (Gdx.input.isKeyPressed(Keys.SHIFT_RIGHT)) {
+            shapeRenderer.begin(ShapeType.Line);
+            shapeRenderer.setColor(Color.CYAN);
+            shapeRenderer.rect(player.x, player.y, player.width, player.height);
+        }
+
         game.batch.begin();
         game.batch.draw(player.render(deltaTime), player.x, player.y, player.width, player.height);
         for (Platform platform : platforms) {
-            shapeRenderer.rect(platform.x, platform.y, platform.width, platform.height);
+            if (Gdx.input.isKeyPressed(Keys.SHIFT_RIGHT)) shapeRenderer.rect(platform.x, platform.y, platform.width, platform.height);
             game.batch.draw(platform.getPlatformTexture(), platform.x, platform.y, platform.width, platform.height);
 
             if (platform.hasDirt) {
-                game.batch.draw(platform.getDirtTexture(), platform.x, platform.y - platform.height * 4.2f, platform.width, platform.y + platform.height);
+                game.batch.draw(platform.getDirt().getDirtTexture(), platform.getDirt().x, platform.getDirt().y, platform.getDirt().width, platform.getDirt().height);
+                if (Gdx.input.isKeyPressed(Keys.SHIFT_RIGHT)) shapeRenderer.rect(platform.getDirt().x, platform.getDirt().y, platform.getDirt().width, platform.getDirt().height);
             }
         }
         game.batch.end();
 
-        shapeRenderer.end();
+        if (Gdx.input.isKeyPressed(Keys.SHIFT_RIGHT)) shapeRenderer.end();
 
         // gets player input and updates the player's position
         // the player needs to be facing right when calculating its position in order for the overlaps function to work
@@ -100,18 +105,29 @@ public class game_screen implements Screen {
         for (Platform platform : platforms) {
             // checks if the player is touching any of the platforms with some fixes to make the motions look smoother and more realistic (aka making sure the player doesn't teleport or walk on the air)
             if (player.overlaps(platform) && (!(player.state == squirrelState.Jumping) || player.fallTime > 1.2f) && player.x - platform.x < platform.width - 60 && platform.x < player.x + 80 && platform.y - player.y < 10) {
-                if (platform.y - player.y > 0) player.moveBy(0, platform.y - player.y - 3);
-                player.moveBy(0, platform.y - player.y - 3);
+                if (platform.y - player.y > 0) player.moveYBy(platform.y - player.y - 3);
+                player.moveYBy(platform.y - player.y - 3);
                 player.fallTime = 1f;
                 player.isAffectedByGravity = false;
             }
 
+            // checks if the player can jump
             if ((player.overlaps(platform) || player.state == squirrelState.Jumping) && 10 * deltaTime * (float)Math.pow(player.fallTime, 4) < 250 * deltaTime) player.canJump = true;
             else if (!player.canJump) player.canJump = false;
+
+            // checks if the player is touching the dirt in order for it to not move through it
+            if (player.overlaps(platform.getDirt()) && platform.y - player.y > 10 && Math.abs(player.x - platform.x) < 125) {
+                player.moveXBy(player.getDX() * -1);
+
+                if (platform.x < player.x + 120){
+                    if (player.getDX() > 0) player.moveBy(20, 10);
+                    else player.moveXBy(-10);
+                }
+            }
         }
 
         if (player.isAffectedByGravity) {
-            player.moveBy(0, -10 * deltaTime * (float)Math.pow(player.fallTime, 4));
+            player.moveYBy(-10 * deltaTime * (float)Math.pow(player.fallTime, 4));
             player.isAffectedByGravity = false;
         }
 
@@ -123,6 +139,7 @@ public class game_screen implements Screen {
             player.flip();
         }
 
+        player.moveXBy(0);
         if (Gdx.input.isKeyPressed(Keys.RIGHT) && !Gdx.input.isKeyPressed(Keys.LEFT)) player.moveXBy(200 * deltaTime);
         if (Gdx.input.isKeyPressed(Keys.LEFT) && !Gdx.input.isKeyPressed(Keys.RIGHT)) player.moveXBy(-200 * deltaTime);
         if (Gdx.input.isKeyPressed(Keys.ENTER)) isPaused = true;
@@ -159,5 +176,9 @@ public class game_screen implements Screen {
 	@Override
 	public void dispose() {
         player.dispose();
+
+        for (Platform platform : platforms){
+            platform.dispose();
+        }
 	}
 }

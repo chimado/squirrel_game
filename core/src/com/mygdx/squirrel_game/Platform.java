@@ -5,8 +5,8 @@ import com.badlogic.gdx.graphics.Texture;
 
 public class Platform extends GameObject{
     Texture platformTexture;
-    Texture dirtTexture;
     Boolean hasDirt;
+    Dirt dirt;
 
     public Platform(float width, float height, float x, float y, Boolean hasDirt) {
         super(width, height);
@@ -16,7 +16,7 @@ public class Platform extends GameObject{
         platformTexture = new Texture(Gdx.files.internal("grass_platform.png"));
 
         if (hasDirt) {
-            dirtTexture = new Texture(Gdx.files.internal("dirt.png"));
+            dirt = new Dirt(width, y, x, 0);
         }
     }
 
@@ -24,15 +24,15 @@ public class Platform extends GameObject{
         return platformTexture;
     }
 
-    public Texture getDirtTexture(){
-        return dirtTexture;
+    public Dirt getDirt(){
+        return dirt;
     }
-    
+
     public void dispose(){
         platformTexture.dispose();
 
         if (hasDirt) {
-            dirtTexture.dispose();
+            dirt.dispose();
         }
     }
 }
