@@ -14,6 +14,7 @@ public class squirrel extends GameObject{
     }
 
     public float fallTime; // is the time in milliseconds the player is in the air, used for gravity calculations
+    float idle_animation_time;
     Boolean isAffectedByGravity;
     Boolean canJump;
     Texture outputTexture;
@@ -21,6 +22,7 @@ public class squirrel extends GameObject{
     ObjectAnimation squirrel_running_animation;
     ObjectAnimation squirrel_jumping_animation;
     ObjectAnimation squirrel_falling_animation;
+    ObjectAnimation squirrel_idle_animation;
     squirrelState state;
 
     public squirrel(float x, float y){
@@ -31,6 +33,7 @@ public class squirrel extends GameObject{
         isAffectedByGravity = false;
         canJump = false;
         state = squirrelState.Idle;
+        idle_animation_time = 0;
 
         // initializes the animations and loads all the textures into them
         squirrel_running_animation = new ObjectAnimation();
@@ -39,6 +42,8 @@ public class squirrel extends GameObject{
         squirrel_jumping_animation.loadAnimation("squirrel_running_", 6);
         squirrel_falling_animation = new ObjectAnimation();
         squirrel_falling_animation.loadAnimation("squirrel_falling_", 7);
+        squirrel_idle_animation = new ObjectAnimation();
+        squirrel_idle_animation.loadAnimation("squirrel_idle_", 3);
         basicSquirrel = new Texture(Gdx.files.internal("squirrel_basic.png"));
     }
 
@@ -84,12 +89,16 @@ public class squirrel extends GameObject{
                 outputTexture = squirrel_running_animation.getFrame(delta);
                 squirrel_falling_animation.resetAnimation();
                 squirrel_jumping_animation.resetAnimation();
+                squirrel_idle_animation.resetAnimation();
+                idle_animation_time = 0;
                 break;
             
             case Falling:
                 outputTexture = squirrel_falling_animation.getFrame(delta);
                 squirrel_running_animation.resetAnimation();
                 squirrel_jumping_animation.resetAnimation();
+                squirrel_idle_animation.resetAnimation();
+                idle_animation_time = 0;
                 break;
             
             case Jumping:
@@ -102,13 +111,25 @@ public class squirrel extends GameObject{
                 }
                 squirrel_falling_animation.resetAnimation();
                 squirrel_running_animation.resetAnimation();
+                squirrel_idle_animation.resetAnimation();
+                idle_animation_time = 0;
                 break;
             
             case Idle:
-                outputTexture = basicSquirrel;
+                if (idle_animation_time > 2f) {
+                    outputTexture = squirrel_idle_animation.getFrame(delta);
+                    
+                    if (idle_animation_time > 3f) {
+                        idle_animation_time = 0;
+                    }
+                }
+
+                else outputTexture = basicSquirrel;
+
                 squirrel_running_animation.resetAnimation();
                 squirrel_jumping_animation.resetAnimation();
                 squirrel_falling_animation.resetAnimation();
+                idle_animation_time += delta;
                 break;
         }
 
