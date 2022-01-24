@@ -25,7 +25,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 public class game_screen implements Screen {
     final squirrel_game game;
     squirrel player;
-    // store the world's size
+    // stores the world's size
     static final int worldWidth = 1280, worldHeight = 800;
     
     OrthographicCamera camera;
@@ -33,7 +33,7 @@ public class game_screen implements Screen {
     float deltaTime;
     Boolean isPaused;
     Array<Platform> platforms; // stores the platforms for the game
-    ShapeRenderer shapeRenderer;
+    ShapeRenderer shapeRenderer; // is responsible for rendering the hitboxes for debugging purposes
 
     public game_screen(final squirrel_game game) {
         this.game = game;
@@ -43,9 +43,11 @@ public class game_screen implements Screen {
         platforms = new Array<Platform>();
 
         // temporary initialization of the platforms array (in the future this will be replaced by a world generation algorithm)
-        for (int i = 0; i < 5; i++){
+        for (int i = 0; i < 2; i++){
             platforms.add(new Platform(300, 30, 400 + i * 200, 100 + i * 200, true));
         }
+
+        platforms.add(new Platform(300, 30, 800, 100, true));
 
         // create the camera and the viewport
 		camera = new OrthographicCamera();
@@ -119,9 +121,19 @@ public class game_screen implements Screen {
             if (player.overlaps(platform.getDirt()) && platform.y - player.y > 10 && Math.abs(player.x - platform.x) < 125) {
                 player.moveXBy(player.getDX() * -1);
 
+                // makes sure the player won't get stuck in the dirt
                 if (platform.x < player.x + 120){
                     if (player.getDX() > 0) player.moveBy(20, 10);
                     else player.moveXBy(-10);
+                }
+            }
+
+            else if (player.overlaps(platform.getDirt()) && platform.y - player.y > 10 && Math.abs(player.x - (platform.x + platform.width)) > 20) {
+                player.moveXBy(player.getDX() * -1);
+
+                if (platform.x + platform.width > player.x + 20){
+                    if (player.getDX() < 0) player.moveBy(-20, -10);
+                    else player.moveXBy(10);
                 }
             }
         }
