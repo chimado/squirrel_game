@@ -89,8 +89,12 @@ public class game_screen implements Screen {
         shapeRenderer.end();
 
         // gets player input and updates the player's position
+        if (player.isFacingLeft) {
+            player.flip();
+        }
+
         for (Platform platform : platforms) {
-            if (player.overlaps(platform) && (!(player.state == squirrelState.Jumping) || player.fallTime > 1.2f)) {
+            if (player.overlaps(platform) && (!(player.state == squirrelState.Jumping) || player.fallTime > 1.2f) && player.x - platform.x < platform.width - 60 && platform.x < player.x + 80) {
                 if (platform.y - player.y > 0) player.moveBy(0, platform.y - player.y - 3);
                 player.moveBy(0, platform.y - player.y - 3);
                 player.fallTime = 1f;
@@ -99,6 +103,10 @@ public class game_screen implements Screen {
 
             if ((player.overlaps(platform) || player.state == squirrelState.Jumping) && 10 * deltaTime * (float)Math.pow(player.fallTime, 4) < 250 * deltaTime) player.canJump = true;
             else player.canJump = false;
+        }
+
+        if (player.isFacingLeft) {
+            player.flip();
         }
 
         if (player.isAffectedByGravity) {
