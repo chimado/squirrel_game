@@ -122,13 +122,13 @@ public class game_screen implements Screen {
                 player.moveXBy(player.getDX() * -1);
 
                 // makes sure the player won't get stuck in the dirt
-                if (platform.x < player.x + 120){
+                if (platform.x < player.x + 125){
                     if (player.getDX() > 0) player.moveBy(20, 10);
                     else player.moveXBy(-10);
                 }
             }
 
-            else if (player.overlaps(platform.getDirt()) && platform.y - player.y > 10 && Math.abs(player.x - (platform.x + platform.width)) > 20) {
+            else if (player.overlaps(platform.getDirt()) && platform.y - player.y > 10 && Math.abs(player.x - (platform.x + platform.width)) > 20 && player.x > platform.x) {
                 player.moveXBy(player.getDX() * -1);
 
                 if (platform.x + platform.width > player.x + 20){
@@ -144,7 +144,7 @@ public class game_screen implements Screen {
         }
 
         if (Gdx.input.isKeyPressed(Keys.UP) && player.canJump) {
-            player.moveYBy(250 * deltaTime);
+            player.moveYBy(250 * deltaTime); 
         }
 
         if (player.isFacingLeft) {
