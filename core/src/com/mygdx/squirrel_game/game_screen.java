@@ -43,8 +43,8 @@ public class game_screen implements Screen {
         platforms = new Array<Platform>();
 
         // temporary initialization of the platforms array (in the future this will be replaced by a world generation algorithm)
-        for (int i = 0; i < 1; i++){
-            platforms.add(new Platform(300, 30, 400 + i * 100, 100 + i * 100, false));
+        for (int i = 0; i < 2; i++){
+            platforms.add(new Platform(300, 30, 400 + i * 200, 100 + i * 200, false));
         }
 
         // create the camera and the viewport
@@ -89,24 +89,23 @@ public class game_screen implements Screen {
         shapeRenderer.end();
 
         // gets player input and updates the player's position
+        // the player needs to be facing right when calculating its position in order for the overlaps function to work
         if (player.isFacingLeft) {
             player.flip();
         }
+
+        player.isAffectedByGravity = true;
 
         for (Platform platform : platforms) {
             if (player.overlaps(platform) && (!(player.state == squirrelState.Jumping) || player.fallTime > 1.2f) && player.x - platform.x < platform.width - 60 && platform.x < player.x + 80) {
                 if (platform.y - player.y > 0) player.moveBy(0, platform.y - player.y - 3);
                 player.moveBy(0, platform.y - player.y - 3);
                 player.fallTime = 1f;
+                player.isAffectedByGravity = false;
             }
-            else player.isAffectedByGravity = true;
 
             if ((player.overlaps(platform) || player.state == squirrelState.Jumping) && 10 * deltaTime * (float)Math.pow(player.fallTime, 4) < 250 * deltaTime) player.canJump = true;
-            else player.canJump = false;
-        }
-
-        if (player.isFacingLeft) {
-            player.flip();
+            else if (!player.canJump) player.canJump = false;
         }
 
         if (player.isAffectedByGravity) {
@@ -116,6 +115,10 @@ public class game_screen implements Screen {
 
         if (Gdx.input.isKeyPressed(Keys.UP) && player.canJump) {
             player.moveYBy(250 * deltaTime);
+        }
+
+        if (player.isFacingLeft) {
+            player.flip();
         }
 
         if (Gdx.input.isKeyPressed(Keys.RIGHT) && !Gdx.input.isKeyPressed(Keys.LEFT)) player.moveXBy(200 * deltaTime);
