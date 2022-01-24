@@ -43,7 +43,7 @@ public class game_screen implements Screen {
         platforms = new Array<Platform>();
 
         // temporary initialization of the platforms array (in the future this will be replaced by a world generation algorithm)
-        for (int i = 0; i < 2; i++){
+        for (int i = 0; i < 5; i++){
             platforms.add(new Platform(300, 30, 400 + i * 200, 100 + i * 200, false));
         }
 
@@ -95,9 +95,11 @@ public class game_screen implements Screen {
         }
 
         player.isAffectedByGravity = true;
+        player.canJump = false;
 
         for (Platform platform : platforms) {
-            if (player.overlaps(platform) && (!(player.state == squirrelState.Jumping) || player.fallTime > 1.2f) && player.x - platform.x < platform.width - 60 && platform.x < player.x + 80) {
+            // checks if the player is touching any of the platforms with some fixes to make the motions look smoother and more realistic (aka making sure the player doesn't teleport or walk on the air)
+            if (player.overlaps(platform) && (!(player.state == squirrelState.Jumping) || player.fallTime > 1.2f) && player.x - platform.x < platform.width - 60 && platform.x < player.x + 80 && platform.y - player.y < 10) {
                 if (platform.y - player.y > 0) player.moveBy(0, platform.y - player.y - 3);
                 player.moveBy(0, platform.y - player.y - 3);
                 player.fallTime = 1f;
