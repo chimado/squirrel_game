@@ -74,7 +74,7 @@ public class game_screen implements Screen {
 		game.batch.setProjectionMatrix(camera.combined);
 
         // show hitboxes for debugging purposes
-        if (Gdx.input.isKeyPressed(Keys.SHIFT_RIGHT)) {
+        if (Gdx.input.isKeyPressed(Keys.SPACE)) {
             shapeRenderer.begin(ShapeType.Line);
             shapeRenderer.setColor(Color.CYAN);
             shapeRenderer.rect(player.x, player.y, player.width, player.height);
@@ -83,17 +83,17 @@ public class game_screen implements Screen {
         game.batch.begin();
         game.batch.draw(player.render(deltaTime), player.x, player.y, player.width, player.height);
         for (Platform platform : platforms) {
-            if (Gdx.input.isKeyPressed(Keys.SHIFT_RIGHT)) shapeRenderer.rect(platform.x, platform.y, platform.width, platform.height);
+            if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.rect(platform.x, platform.y, platform.width, platform.height);
             game.batch.draw(platform.getPlatformTexture(), platform.x, platform.y, platform.width, platform.height);
 
             if (platform.hasDirt) {
                 game.batch.draw(platform.getDirt().getDirtTexture(), platform.getDirt().x, platform.getDirt().y, platform.getDirt().width, platform.getDirt().height);
-                if (Gdx.input.isKeyPressed(Keys.SHIFT_RIGHT)) shapeRenderer.rect(platform.getDirt().x, platform.getDirt().y, platform.getDirt().width, platform.getDirt().height);
+                if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.rect(platform.getDirt().x, platform.getDirt().y, platform.getDirt().width, platform.getDirt().height);
             }
         }
         game.batch.end();
 
-        if (Gdx.input.isKeyPressed(Keys.SHIFT_RIGHT)) shapeRenderer.end();
+        if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.end();
 
         // gets player input and updates the player's position
         // the player needs to be facing right when calculating its position in order for the overlaps function to work
@@ -122,15 +122,19 @@ public class game_screen implements Screen {
                 player.moveXBy(player.getDX() * -1);
 
                 // makes sure the player won't get stuck in the dirt
+                // this is for the left side of the dirt
                 if (platform.x < player.x + 125 && Math.abs(player.x - platform.x) < 125){
                     player.moveXBy(player.getDX() * -1);
+                    // this is for if the player is coming from below the platform
                     if (player.getDX() > 0) player.moveBy(20, 10);
+                    // this is for if the player is coming from above the platform and teh same goes for the right side of the dirt
                     else player.moveXBy(-10);
                 }
 
+                // this is for the right side of the dirt
                 else if (Math.abs(player.x - (platform.x + platform.width)) > 20 && player.x > platform.x && platform.x + platform.width > player.x + 20) {
                     player.moveXBy(player.getDX() * -1);
-                    if (player.getDX() < 0) player.moveBy(-20, -10);
+                    if (player.getDX() < 0) player.moveBy(-20, 10);
                     else player.moveXBy(10);
                 }
             }
@@ -147,6 +151,14 @@ public class game_screen implements Screen {
 
         if (player.isFacingLeft) {
             player.flip();
+        }
+
+        if (player.y < 0){
+            player.moveTo(player.x, 340);
+        }
+
+        if (player.x > worldWidth || player.x < 0){
+            player.moveTo(600, player.y);
         }
 
         player.moveXBy(0);
