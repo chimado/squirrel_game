@@ -118,20 +118,18 @@ public class game_screen implements Screen {
             else if (!player.canJump) player.canJump = false;
 
             // checks if the player is touching the dirt in order for it to not move through it
-            if (player.overlaps(platform.getDirt()) && platform.y - player.y > 10 && Math.abs(player.x - platform.x) < 125) {
+            if (player.overlaps(platform.getDirt()) && platform.y - player.y > 10 && (Math.abs(player.x - platform.x) < 125 || Math.abs(player.x - (platform.x + platform.width)) > 20 && player.x > platform.x)) {
                 player.moveXBy(player.getDX() * -1);
 
                 // makes sure the player won't get stuck in the dirt
-                if (platform.x < player.x + 125){
+                if (platform.x < player.x + 125 && Math.abs(player.x - platform.x) < 125){
+                    player.moveXBy(player.getDX() * -1);
                     if (player.getDX() > 0) player.moveBy(20, 10);
                     else player.moveXBy(-10);
                 }
-            }
 
-            else if (player.overlaps(platform.getDirt()) && platform.y - player.y > 10 && Math.abs(player.x - (platform.x + platform.width)) > 20 && player.x > platform.x) {
-                player.moveXBy(player.getDX() * -1);
-
-                if (platform.x + platform.width > player.x + 20){
+                else if (Math.abs(player.x - (platform.x + platform.width)) > 20 && player.x > platform.x && platform.x + platform.width > player.x + 20) {
+                    player.moveXBy(player.getDX() * -1);
                     if (player.getDX() < 0) player.moveBy(-20, -10);
                     else player.moveXBy(10);
                 }
