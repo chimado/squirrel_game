@@ -40,10 +40,10 @@ public class game_screen implements Screen {
 
         // temporary initialization of the platforms array (in the future this will be replaced by a world generation algorithm)
         for (int i = 0; i < 2; i++){
-            platforms.add(new Platform(300, 30, 400 + i * 200, 100 + i * 200, true));
+            platforms.add(new Platform(300, 30, 400 + i * 200, 100 + i * 200, true, true));
         }
 
-        platforms.add(new Platform(300, 30, 800, 100, true));
+        platforms.add(new Platform(300, 30, 800, 100, true, true));
 
         // create the camera and the viewport
 		camera = new OrthographicCamera();
@@ -85,6 +85,11 @@ public class game_screen implements Screen {
             if (platform.hasDirt) {
                 game.batch.draw(platform.getDirt().getDirtTexture(), platform.getDirt().x, platform.getDirt().y, platform.getDirt().width, platform.getDirt().height);
                 if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.rect(platform.getDirt().x, platform.getDirt().y, platform.getDirt().width, platform.getDirt().height);
+            }
+
+            if (platform.hasTree) {
+                game.batch.draw(platform.getTree().getTreeTexture(), platform.getTree().x, platform.getTree().y, platform.getTree().width, platform.getTree().height);
+                //if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.rect(platform.getTree().x, platform.getTree().y, platform.getTree().width, platform.getTree().height);
             }
         }
         game.batch.end();
