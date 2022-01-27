@@ -3,7 +3,7 @@ package com.mygdx.squirrel_game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 
-
+// stores information about the player
 public class squirrel extends GameObject{
     // is responsible for storing the player's state information
     public enum squirrelState {
@@ -84,6 +84,7 @@ public class squirrel extends GameObject{
         }
 
         // checks which animation should play according to the state enum
+        // resets all other animations (not a good solution for that but it works well enough for now)
         switch (state) {
             case Running:
                 outputTexture = squirrel_running_animation.getFrame(delta);
@@ -145,5 +146,8 @@ public class squirrel extends GameObject{
         squirrel_running_animation.dispose();
         squirrel_jumping_animation.dispose();
         squirrel_falling_animation.dispose();
+        squirrel_idle_animation.dispose();
+        basicSquirrel.dispose();
+        outputTexture.dispose();
     }
 }

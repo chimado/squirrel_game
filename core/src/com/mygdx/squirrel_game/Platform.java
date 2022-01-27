@@ -3,6 +3,7 @@ package com.mygdx.squirrel_game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 
+// this object stores information about individual platforms
 public class Platform extends GameObject{
     Texture platformTexture;
     Boolean hasDirt;

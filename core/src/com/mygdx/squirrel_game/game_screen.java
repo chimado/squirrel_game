@@ -5,15 +5,11 @@ import java.lang.Math;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.audio.Sound;
+// import com.badlogic.gdx.audio.Music; reserved for later use
+// import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.TimeUtils;
 import com.mygdx.squirrel_game.squirrel.squirrelState;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -95,7 +91,6 @@ public class game_screen implements Screen {
 
         if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.end();
 
-        // gets player input and updates the player's position
         // the player needs to be facing right when calculating its position in order for the overlaps function to work
         if (player.isFacingLeft) {
             player.flip();
@@ -104,6 +99,7 @@ public class game_screen implements Screen {
         player.isAffectedByGravity = true;
         player.canJump = false;
 
+        // checks which platforms the player is touching and moves it accordingly
         for (Platform platform : platforms) {
             // checks if the player is touching any of the platforms with some fixes to make the motions look smoother and more realistic (aka making sure the player doesn't teleport or walk on the air)
             if (player.overlaps(platform) && (!(player.state == squirrelState.Jumping) || player.fallTime > 1.2f) && player.x - platform.x < platform.width - 60 && platform.x < player.x + 80 && platform.y - player.y < 10) {
@@ -140,20 +136,25 @@ public class game_screen implements Screen {
             }
         }
 
+        // changes the player's position if it's affected by gravity
         if (player.isAffectedByGravity) {
             player.moveYBy(-10 * deltaTime * (float)Math.pow(player.fallTime, 4));
             player.isAffectedByGravity = false;
         }
 
+        // changes the player's position if it's jumping
         if (Gdx.input.isKeyPressed(Keys.UP) && player.canJump) {
             player.moveYBy(250 * deltaTime); 
         }
 
+        // flips the player back after the use of overlaps is over
         if (player.isFacingLeft) {
             player.flip();
         }
 
-        if (player.y < 0){
+        // the next two if statements are for debugging purposes only
+        // they reduce the number of game restarts necessary for development by making sure the player won't go out of bounds
+        if (player.y < -200){
             player.moveTo(player.x, 340);
         }
 
@@ -161,6 +162,7 @@ public class game_screen implements Screen {
             player.moveTo(600, player.y);
         }
 
+         // gets player input and updates the player's position
         player.moveXBy(0);
         if (Gdx.input.isKeyPressed(Keys.RIGHT) && !Gdx.input.isKeyPressed(Keys.LEFT)) player.moveXBy(200 * deltaTime);
         if (Gdx.input.isKeyPressed(Keys.LEFT) && !Gdx.input.isKeyPressed(Keys.RIGHT)) player.moveXBy(-200 * deltaTime);
