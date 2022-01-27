@@ -10,7 +10,8 @@ public class squirrel extends GameObject{
         Running,
         Falling,
         Jumping,
-        Idle
+        Idle,
+        Climbing
     }
 
     public float fallTime; // is the time in milliseconds the player is in the air, used for gravity calculations
@@ -23,10 +24,11 @@ public class squirrel extends GameObject{
     ObjectAnimation squirrel_jumping_animation;
     ObjectAnimation squirrel_falling_animation;
     ObjectAnimation squirrel_idle_animation;
+    ObjectAnimation squirrel_climbing_animation;
     squirrelState state;
 
     public squirrel(float x, float y){
-        super(48 * 3, 32 * 3);
+        super(48 * 3, 48 * 3);
         super.x = x;
         super.y = y;
         fallTime = 1f;
@@ -44,6 +46,8 @@ public class squirrel extends GameObject{
         squirrel_falling_animation.loadAnimation("squirrel_falling_", 7);
         squirrel_idle_animation = new ObjectAnimation();
         squirrel_idle_animation.loadAnimation("squirrel_idle_", 3);
+        squirrel_climbing_animation = new ObjectAnimation();
+        squirrel_climbing_animation.loadAnimation("squirrel_climbing_", 3);
         basicSquirrel = new Texture(Gdx.files.internal("squirrel_basic.png"));
     }
 
@@ -91,6 +95,7 @@ public class squirrel extends GameObject{
                 squirrel_falling_animation.resetAnimation();
                 squirrel_jumping_animation.resetAnimation();
                 squirrel_idle_animation.resetAnimation();
+                squirrel_climbing_animation.resetAnimation();
                 idle_animation_time = 0;
                 break;
             
@@ -99,6 +104,7 @@ public class squirrel extends GameObject{
                 squirrel_running_animation.resetAnimation();
                 squirrel_jumping_animation.resetAnimation();
                 squirrel_idle_animation.resetAnimation();
+                squirrel_climbing_animation.resetAnimation();
                 idle_animation_time = 0;
                 break;
             
@@ -113,6 +119,7 @@ public class squirrel extends GameObject{
                 squirrel_falling_animation.resetAnimation();
                 squirrel_running_animation.resetAnimation();
                 squirrel_idle_animation.resetAnimation();
+                squirrel_climbing_animation.resetAnimation();
                 idle_animation_time = 0;
                 break;
             
@@ -130,8 +137,16 @@ public class squirrel extends GameObject{
                 squirrel_running_animation.resetAnimation();
                 squirrel_jumping_animation.resetAnimation();
                 squirrel_falling_animation.resetAnimation();
+                squirrel_climbing_animation.resetAnimation();
                 idle_animation_time += delta;
                 break;
+            
+            case Climbing:
+                outputTexture = squirrel_climbing_animation.getFrame(delta);
+                squirrel_idle_animation.resetAnimation();
+                squirrel_running_animation.resetAnimation();
+                squirrel_jumping_animation.resetAnimation();
+                squirrel_falling_animation.resetAnimation();
         }
 
         // checks if the last movement has been to the left and mirrors the texture
@@ -147,6 +162,7 @@ public class squirrel extends GameObject{
         squirrel_jumping_animation.dispose();
         squirrel_falling_animation.dispose();
         squirrel_idle_animation.dispose();
+        squirrel_climbing_animation.dispose();
         basicSquirrel.dispose();
         outputTexture.dispose();
     }

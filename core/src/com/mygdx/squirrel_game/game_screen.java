@@ -77,7 +77,7 @@ public class game_screen implements Screen {
         }
 
         game.batch.begin();
-        game.batch.draw(player.render(deltaTime), player.x, player.y, player.width, player.height);
+        game.batch.draw(player.render(deltaTime), player.x, player.y - 23, player.width, player.height);
         for (Platform platform : platforms) {
             if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.rect(platform.x, platform.y, platform.width, platform.height);
             game.batch.draw(platform.getPlatformTexture(), platform.x, platform.y, platform.width, platform.height);
