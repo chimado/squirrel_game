@@ -40,7 +40,7 @@ public class game_screen implements Screen {
 
         // temporary initialization of the platforms array (in the future this will be replaced by a world generation algorithm)
         for (int i = 0; i < 2; i++){
-            platforms.add(new Platform(300, 30, 400 + i * 200, 100 + i * 200, true, true));
+            platforms.add(new Platform(300, 30, 400 + i * 200, 100 + i * 200, false, true));
         }
 
         platforms.add(new Platform(300, 30, 800, 100, true, true));
@@ -77,7 +77,6 @@ public class game_screen implements Screen {
         }
 
         game.batch.begin();
-        game.batch.draw(player.render(deltaTime), player.x, player.y - 23, player.width, player.height);
         for (Platform platform : platforms) {
             if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.rect(platform.x, platform.y, platform.width, platform.height);
             game.batch.draw(platform.getPlatformTexture(), platform.x, platform.y, platform.width, platform.height);
@@ -88,10 +87,11 @@ public class game_screen implements Screen {
             }
 
             if (platform.hasTree) {
-                game.batch.draw(platform.getTree().getTreeTexture(), platform.getTree().x, platform.getTree().y, platform.getTree().width, platform.getTree().height);
-                //if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.rect(platform.getTree().x, platform.getTree().y, platform.getTree().width, platform.getTree().height);
+                game.batch.draw(platform.getTree().getTreeAnimation(deltaTime), platform.getTree().x, platform.getTree().y - 45, platform.getTree().width, platform.getTree().height);
+                if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.rect(platform.getTree().x, platform.getTree().y - 45, platform.getTree().width, platform.getTree().height);
             }
         }
+        if (player.state != squirrelState.InTree) game.batch.draw(player.render(deltaTime), player.x, player.y - 23, player.width, player.height);
         game.batch.end();
 
         if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.end();
@@ -106,7 +106,7 @@ public class game_screen implements Screen {
 
         // checks which platforms the player is touching and moves it accordingly
         for (Platform platform : platforms) {
-            // checks if the player is touching any of the platforms with some fixes to make the motions look smoother and more realistic (aka making sure the player doesn't teleport or walk on the air)
+            // checks if the player is touching any of the platforms with some fixes to make the movement look smoother and more realistic (aka making sure the player doesn't teleport or walk on the air)
             if (player.overlaps(platform) && (!(player.state == squirrelState.Jumping) || player.fallTime > 1.2f) && player.x - platform.x < platform.width - 60 && platform.x < player.x + 80 && platform.y - player.y < 10) {
                 if (platform.y - player.y > 0) player.moveYBy(platform.y - player.y - 3);
                 player.moveYBy(platform.y - player.y - 3);
@@ -114,12 +114,14 @@ public class game_screen implements Screen {
                 player.isAffectedByGravity = false;
             }
 
+            if (player.state == squirrelState.Climbing) player.isAffectedByGravity = false;
+
             // checks if the player can jump
-            if ((player.overlaps(platform) || player.state == squirrelState.Jumping) && 10 * deltaTime * (float)Math.pow(player.fallTime, 4) < 250 * deltaTime) player.canJump = true;
+            if (((player.overlaps(platform) || player.state == squirrelState.Jumping) && 10 * deltaTime * (float)Math.pow(player.fallTime, 4) < 250 * deltaTime) || player.state == squirrelState.InTree) player.canJump = true;
             else if (!player.canJump) player.canJump = false;
 
             // checks if the player is touching the dirt in order for it to not move through it
-            if (player.overlaps(platform.getDirt()) && platform.y - player.y > 10 && (Math.abs(player.x - platform.x) < 125 || Math.abs(player.x - (platform.x + platform.width)) > 20 && player.x > platform.x)) {
+            if (platform.hasDirt && player.overlaps(platform.getDirt()) && platform.y - player.y > 10 && (Math.abs(player.x - platform.x) < 125 || Math.abs(player.x - (platform.x + platform.width)) > 20 && player.x > platform.x)) {
                 player.moveXBy(player.getDX() * -1);
 
                 // makes sure the player won't get stuck in the dirt
@@ -139,6 +141,21 @@ public class game_screen implements Screen {
                     else player.moveXBy(10);
                 }
             }
+
+            // checks if the player can climb up a tree
+            if (platform.hasTree && player.overlaps(platform.getTree())) {
+                player.canClimb = true;
+
+                // checks if the player has reached the top of the tree
+                if (player.x >= platform.getTree().x + platform.getTree().height - 30 && player.state == squirrelState.Climbing){
+                    player.moveTo(player.x, platform.getTree().x + platform.getTree().height - 30);
+                    player.state = squirrelState.InTree;
+                }
+            }
+            else if (player.state != squirrelState.Climbing) player.canClimb = false;
+
+            // makes sure the player is at the x value of the tree it's climbing 
+            if (player.state == squirrelState.Climbing) player.moveTo(platform.getTree().x, player.y);
         }
 
         // changes the player's position if it's affected by gravity
@@ -147,9 +164,9 @@ public class game_screen implements Screen {
             player.isAffectedByGravity = false;
         }
 
-        // changes the player's position if it's jumping
-        if (Gdx.input.isKeyPressed(Keys.UP) && player.canJump) {
-            player.moveYBy(250 * deltaTime); 
+        // changes the player's position if it's jumping or climbing
+        if (Gdx.input.isKeyPressed(Keys.UP) && (player.canJump || player.canClimb)) {
+            player.moveYBy(250 * deltaTime);
         }
 
         // flips the player back after the use of overlaps is over

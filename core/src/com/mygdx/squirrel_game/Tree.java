@@ -1,26 +1,34 @@
 package com.mygdx.squirrel_game;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 
 // this object stores information about individual Tree components of platforms that have a Tree
 public class Tree extends GameObject{
-    Texture treeTexture;
+    ObjectAnimation treeAnimation;
     Boolean hasTree;
+    Boolean isAnimated;
 
     public Tree(float x, float y) {
-        super(64 * 3, 64 * 3);
+        super(128 * 3, 128 * 3);
         super.x = x;
         super.y = y;
+        isAnimated = false;
 
-        treeTexture = new Texture(Gdx.files.internal("tree.png"));
+        treeAnimation = new ObjectAnimation();
+        treeAnimation.loadAnimation("tree", 12);
     }
 
-    public Texture getTreeTexture(){
-        return treeTexture;
+    public Texture getTreeAnimation(float delta){
+        if (isAnimated && treeAnimation.currentFrame != 11) return treeAnimation.getFrame(delta);
+        else return treeAnimation.frames.get(0);
+    }
+
+    public void animateTree(){
+        isAnimated = true;
+        treeAnimation.currentFrame = 0;
     }
     
     public void dispose(){
-        treeTexture.dispose();
+        treeAnimation.dispose();
     }
 }

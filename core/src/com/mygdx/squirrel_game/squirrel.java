@@ -11,13 +11,15 @@ public class squirrel extends GameObject{
         Falling,
         Jumping,
         Idle,
-        Climbing
+        Climbing,
+        InTree
     }
 
     public float fallTime; // is the time in milliseconds the player is in the air, used for gravity calculations
     float idle_animation_time;
     Boolean isAffectedByGravity;
     Boolean canJump;
+    Boolean canClimb;
     Texture outputTexture;
     Texture basicSquirrel;
     ObjectAnimation squirrel_running_animation;
@@ -34,6 +36,7 @@ public class squirrel extends GameObject{
         fallTime = 1f;
         isAffectedByGravity = false;
         canJump = false;
+        canClimb = false;
         state = squirrelState.Idle;
         idle_animation_time = 0;
 
@@ -55,36 +58,45 @@ public class squirrel extends GameObject{
     public Texture render(float delta) {
         // checks if the player is moving up or down
         if (super.getDY() > 0) {
-            fallTime += delta;
-            state = squirrelState.Jumping;
-        }
-
-        else if (super.getDY() < 0) {
-            fallTime += delta;
-            state = squirrelState.Falling;
-        }
-
-        else if (delta != 0) {
-            state = squirrelState.Idle;
-        }
-
-        // checks if the player is moving left or right
-        if (super.getDX() != 0) {
-            if (super.getDY() == 0) {
-                state = squirrelState.Running;
-            }
-
-            if (super.getDX() < 0) {
-                isFacingLeft = true;
+            if (canClimb && state != squirrelState.InTree){
+                state = squirrelState.Climbing;
+                fallTime = 1f;
             }
 
             else {
-                isFacingLeft = false;
+                fallTime += delta;
+                state = squirrelState.Jumping;
             }
         }
 
-        else if (delta != 0 && state == squirrelState.Running) {
-            state = squirrelState.Idle;
+        if (state != squirrelState.InTree) {
+            if (super.getDY() < 0) {
+                fallTime += delta;
+                state = squirrelState.Falling;
+            }
+
+            else if (delta != 0 && super.getDY() < 0) {
+                state = squirrelState.Idle;
+            }
+
+            // checks if the player is moving left or right
+            if (super.getDX() != 0) {
+                if (super.getDY() == 0) {
+                    state = squirrelState.Running;
+                }
+
+                if (super.getDX() < 0) {
+                    isFacingLeft = true;
+                }
+
+                else {
+                    isFacingLeft = false;
+                }
+            }
+
+            else if (delta != 0 && state == squirrelState.Running) {
+                state = squirrelState.Idle;
+            }
         }
 
         // checks which animation should play according to the state enum
@@ -147,6 +159,15 @@ public class squirrel extends GameObject{
                 squirrel_running_animation.resetAnimation();
                 squirrel_jumping_animation.resetAnimation();
                 squirrel_falling_animation.resetAnimation();
+                break;
+            
+            case InTree:
+                squirrel_climbing_animation.resetAnimation();
+                squirrel_idle_animation.resetAnimation();
+                squirrel_running_animation.resetAnimation();
+                squirrel_jumping_animation.resetAnimation();
+                squirrel_falling_animation.resetAnimation();
+                break;
         }
 
         // checks if the last movement has been to the left and mirrors the texture
