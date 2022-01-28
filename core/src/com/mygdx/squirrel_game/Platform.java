@@ -26,6 +26,11 @@ public class Platform extends GameObject{
         if (hasTree) {
             tree = new Tree(x, y);
         }
+
+        super.bounds.x = super.x;
+        super.bounds.y = super.y;
+        super.bounds.width = super.width;
+        super.bounds.height = super.height / 2;
     }
 
     public Texture getPlatformTexture(){

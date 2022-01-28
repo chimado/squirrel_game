@@ -16,6 +16,12 @@ public class Tree extends GameObject{
 
         treeAnimation = new ObjectAnimation();
         treeAnimation.loadAnimation("tree", 12);
+        
+        // set tree bounds
+        super.bounds.x = super.x + 170;
+        super.bounds.y = super.y + 70;
+        super.bounds.width = (super.width / 3 + 75) / 5;
+        super.bounds.height = super.height - 250;
     }
 
     public Texture getTreeAnimation(float delta){

@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Rectangle;
 public abstract class GameObject extends Rectangle{
     private float dx, dy;
     Boolean isFacingLeft;
+    Rectangle bounds; // used for collision detection
 
     public GameObject(float width, float height) {
         super.width = width;
@@ -13,6 +14,7 @@ public abstract class GameObject extends Rectangle{
         dx = 0;
         dy = 0;
         isFacingLeft = false;
+        bounds = new Rectangle();
     }
 
     public void moveTo(float x, float y) {
@@ -43,11 +45,5 @@ public abstract class GameObject extends Rectangle{
 
     public float getDY() {
         return dy;
-    }
-
-    // flips the object
-    public void flip(){
-        super.width = (super.width * -1);
-        super.x = (super.x + super.width * -1);
     }
 }

@@ -14,6 +14,12 @@ public class Dirt extends GameObject{
         super.y = y;
 
         dirtTexture = new Texture(Gdx.files.internal("dirt.png"));
+
+        // set dirt bounds
+        super.bounds.x = super.x;
+        super.bounds.y = super.y;
+        super.bounds.width = super.width;
+        super.bounds.height = super.height;
     }
 
     public Texture getDirtTexture(){

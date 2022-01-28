@@ -40,10 +40,10 @@ public class game_screen implements Screen {
 
         // temporary initialization of the platforms array (in the future this will be replaced by a world generation algorithm)
         for (int i = 0; i < 2; i++){
-            platforms.add(new Platform(300, 30, 400 + i * 200, 100 + i * 200, false, true));
+            platforms.add(new Platform(300, 30, 400 + i * 200, 100 + i * 200, true, false));
         }
 
-        platforms.add(new Platform(300, 30, 800, 100, true, true));
+        platforms.add(new Platform(300, 30, 800, 100, true, false));
 
         // create the camera and the viewport
 		camera = new OrthographicCamera();
@@ -73,12 +73,12 @@ public class game_screen implements Screen {
         if (Gdx.input.isKeyPressed(Keys.SPACE)) {
             shapeRenderer.begin(ShapeType.Line);
             shapeRenderer.setColor(Color.CYAN);
-            shapeRenderer.rect(player.x, player.y, player.width, player.height);
+            shapeRenderer.rect(player.bounds.x, player.bounds.y, player.bounds.width, player.bounds.height);
         }
 
         game.batch.begin();
         for (Platform platform : platforms) {
-            if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.rect(platform.x, platform.y, platform.width, platform.height);
+            if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.rect(platform.bounds.x, platform.bounds.y, platform.bounds.width, platform.bounds.height);
             game.batch.draw(platform.getPlatformTexture(), platform.x, platform.y, platform.width, platform.height);
 
             if (platform.hasDirt) {
@@ -88,10 +88,12 @@ public class game_screen implements Screen {
 
             if (platform.hasTree) {
                 game.batch.draw(platform.getTree().getTreeAnimation(deltaTime), platform.getTree().x, platform.getTree().y - 45, platform.getTree().width, platform.getTree().height);
-                if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.rect(platform.getTree().x, platform.getTree().y - 45, platform.getTree().width, platform.getTree().height);
+                if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.rect(platform.getTree().bounds.x, platform.getTree().bounds.y - 45, platform.getTree().bounds.width, platform.getTree().bounds.height);
             }
         }
-        if (player.state != squirrelState.InTree) game.batch.draw(player.render(deltaTime), player.x, player.y - 23, player.width, player.height);
+
+        if (player.state != squirrelState.InTree && player.state != squirrelState.Climbing) game.batch.draw(player.render(deltaTime), player.x, player.y - 23, player.width, player.height);
+        else if (player.state == squirrelState.Climbing) game.batch.draw(player.render(deltaTime), player.x - 80, player.y - 23, player.width, player.height);
         game.batch.end();
 
         if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.end();
@@ -107,31 +109,31 @@ public class game_screen implements Screen {
         // checks which platforms the player is touching and moves it accordingly
         for (Platform platform : platforms) {
             // checks if the player is touching any of the platforms with some fixes to make the movement look smoother and more realistic (aka making sure the player doesn't teleport or walk on the air)
-            if (player.overlaps(platform) && (!(player.state == squirrelState.Jumping) || player.fallTime > 1.2f) && player.x - platform.x < platform.width - 60 && platform.x < player.x + 80 && platform.y - player.y < 10) {
+            if (player.bounds.overlaps(platform.bounds) && (!(player.state == squirrelState.Jumping) || player.fallTime > 1.2f) && player.x - platform.x < platform.width - 60 && platform.x < player.x + 80 && platform.y - player.y < 10) {
                 if (platform.y - player.y > 0) player.moveYBy(platform.y - player.y - 3);
                 player.moveYBy(platform.y - player.y - 3);
                 player.fallTime = 1f;
                 player.isAffectedByGravity = false;
             }
 
-            if (player.state == squirrelState.Climbing) player.isAffectedByGravity = false;
+            if (player.state == squirrelState.Climbing || player.state == squirrelState.InTree) player.isAffectedByGravity = false;
 
             // checks if the player can jump
-            if (((player.overlaps(platform) || player.state == squirrelState.Jumping) && 10 * deltaTime * (float)Math.pow(player.fallTime, 4) < 250 * deltaTime) || player.state == squirrelState.InTree) player.canJump = true;
+            if (((player.bounds.overlaps(platform.bounds) || player.state == squirrelState.Jumping) && 10 * deltaTime * (float)Math.pow(player.fallTime, 4) < 250 * deltaTime) || player.state == squirrelState.InTree) player.canJump = true;
             else if (!player.canJump) player.canJump = false;
 
             // checks if the player is touching the dirt in order for it to not move through it
-            if (platform.hasDirt && player.overlaps(platform.getDirt()) && platform.y - player.y > 10 && (Math.abs(player.x - platform.x) < 125 || Math.abs(player.x - (platform.x + platform.width)) > 20 && player.x > platform.x)) {
+            if (platform.hasDirt && player.bounds.overlaps(platform.getDirt().bounds) && platform.y - player.y > 10 && (Math.abs(player.x - platform.x) < 125 || Math.abs(player.x - (platform.x + platform.width)) > 20 && player.x > platform.x)) {
                 player.moveXBy(player.getDX() * -1);
-
+                
                 // makes sure the player won't get stuck in the dirt
                 // this is for the left side of the dirt
-                if (platform.x < player.x + 125 && Math.abs(player.x - platform.x) < 125){
+                if (platform.x < player.x + 110 && Math.abs(player.x - platform.x) < 110){
                     player.moveXBy(player.getDX() * -1);
                     // this is for if the player is coming from below the platform
                     if (player.getDX() > 0) player.moveBy(20, 10);
-                    // this is for if the player is coming from above the platform and teh same goes for the right side of the dirt
-                    else player.moveXBy(-10);
+                    // this is for if the player is coming from above the platform and the same goes for block of code on the right side of the dirt part of this if statement
+                    else player.moveXBy(-40);
                 }
 
                 // this is for the right side of the dirt
@@ -143,16 +145,17 @@ public class game_screen implements Screen {
             }
 
             // checks if the player can climb up a tree
-            if (platform.hasTree && player.overlaps(platform.getTree())) {
+            /*
+            if (platform.hasTree && player.bounds.overlaps(platform.getTree().bounds)) {
                 player.canClimb = true;
-
-                // checks if the player has reached the top of the tree
-                if (player.x >= platform.getTree().x + platform.getTree().height - 30 && player.state == squirrelState.Climbing){
-                    player.moveTo(player.x, platform.getTree().x + platform.getTree().height - 30);
-                    player.state = squirrelState.InTree;
-                }
             }
             else if (player.state != squirrelState.Climbing) player.canClimb = false;
+
+            // checks if the player has reached the top of the tree
+            if (player.y >= platform.getTree().y + platform.getTree().height - 40 && player.state == squirrelState.Climbing){
+                player.moveTo(player.x, platform.getTree().y + platform.getTree().height - 30);
+                player.state = squirrelState.InTree;
+            }*/
 
             // makes sure the player is at the x value of the tree it's climbing 
             if (player.state == squirrelState.Climbing) player.moveTo(platform.getTree().x, player.y);
@@ -167,6 +170,7 @@ public class game_screen implements Screen {
         // changes the player's position if it's jumping or climbing
         if (Gdx.input.isKeyPressed(Keys.UP) && (player.canJump || player.canClimb)) {
             player.moveYBy(250 * deltaTime);
+            if (player.state == squirrelState.InTree) player.state = squirrelState.Jumping;
         }
 
         // flips the player back after the use of overlaps is over
@@ -184,7 +188,7 @@ public class game_screen implements Screen {
             player.moveTo(600, player.y);
         }
 
-         // gets player input and updates the player's position
+        // gets player input and updates the player's position
         player.moveXBy(0);
         if (Gdx.input.isKeyPressed(Keys.RIGHT) && !Gdx.input.isKeyPressed(Keys.LEFT)) player.moveXBy(200 * deltaTime);
         if (Gdx.input.isKeyPressed(Keys.LEFT) && !Gdx.input.isKeyPressed(Keys.RIGHT)) player.moveXBy(-200 * deltaTime);

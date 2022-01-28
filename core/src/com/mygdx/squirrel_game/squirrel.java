@@ -56,9 +56,11 @@ public class squirrel extends GameObject{
 
     // returns the texture to be rendered
     public Texture render(float delta) {
+        updateBounds();
+
         // checks if the player is moving up or down
         if (super.getDY() > 0) {
-            if (canClimb && state != squirrelState.InTree){
+            if (canClimb && state != squirrelState.InTree && state != squirrelState.Jumping){
                 state = squirrelState.Climbing;
                 fallTime = 1f;
             }
@@ -75,7 +77,7 @@ public class squirrel extends GameObject{
                 state = squirrelState.Falling;
             }
 
-            else if (delta != 0 && super.getDY() < 0) {
+            else if (delta != 0 && super.getDY() == 0) {
                 state = squirrelState.Idle;
             }
 
@@ -176,6 +178,26 @@ public class squirrel extends GameObject{
         }
 
         return outputTexture;
+    }
+
+    // updates the squirrel's hitbox/bounds
+    public void updateBounds(){
+        // set squirrel bounds
+        super.bounds.x = super.x + 15;
+        super.bounds.y = super.y + 15;
+        super.bounds.width = super.width - 40;
+        super.bounds.height = super.height / 3 + 10;
+    }
+
+    // flips the squirrel
+    public void flip(){
+        super.width = super.width * -1;
+        super.x = super.x + super.width * -1;
+
+        if (isFacingLeft){
+            super.bounds.width = (super.bounds.width * -1) / 1.3f;
+            super.bounds.x = super.bounds.x + super.bounds.width * -1;
+        }
     }
 
     public void dispose(){
