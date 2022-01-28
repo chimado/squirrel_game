@@ -60,7 +60,7 @@ public class squirrel extends GameObject{
 
         // checks if the player is moving up or down
         if (super.getDY() > 0) {
-            if (canClimb && state != squirrelState.InTree && state != squirrelState.Jumping){
+            if (canClimb && state != squirrelState.InTree){
                 state = squirrelState.Climbing;
                 fallTime = 1f;
             }
@@ -187,6 +187,13 @@ public class squirrel extends GameObject{
         super.bounds.y = super.y + 15;
         super.bounds.width = super.width - 40;
         super.bounds.height = super.height / 3 + 10;
+
+        if (state == squirrelState.Climbing){
+            super.bounds.x -= 50;
+            super.bounds.y -= 30;
+            super.bounds.width /= 2;
+            super.bounds.height *= 2;
+        }
     }
 
     // flips the squirrel

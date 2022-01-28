@@ -40,10 +40,10 @@ public class game_screen implements Screen {
 
         // temporary initialization of the platforms array (in the future this will be replaced by a world generation algorithm)
         for (int i = 0; i < 2; i++){
-            platforms.add(new Platform(300, 30, 400 + i * 200, 100 + i * 200, true, false));
+            platforms.add(new Platform(300, 30, 400 + i * 200, 100 + i * 200, true, true));
         }
 
-        platforms.add(new Platform(300, 30, 800, 100, true, false));
+        platforms.add(new Platform(300, 30, 800, 100, true, true));
 
         // create the camera and the viewport
 		camera = new OrthographicCamera();
@@ -145,20 +145,20 @@ public class game_screen implements Screen {
             }
 
             // checks if the player can climb up a tree
-            /*
             if (platform.hasTree && player.bounds.overlaps(platform.getTree().bounds)) {
                 player.canClimb = true;
             }
             else if (player.state != squirrelState.Climbing) player.canClimb = false;
 
             // checks if the player has reached the top of the tree
-            if (player.y >= platform.getTree().y + platform.getTree().height - 40 && player.state == squirrelState.Climbing){
+            /*
+            if (player.y >= platform.getTree().y + platform.getTree().height - 40 && player.state == squirrelState.Climbing && player.bounds.overlaps(platform.getTree().bounds)){
                 player.moveTo(player.x, platform.getTree().y + platform.getTree().height - 30);
                 player.state = squirrelState.InTree;
             }*/
 
             // makes sure the player is at the x value of the tree it's climbing 
-            if (player.state == squirrelState.Climbing) player.moveTo(platform.getTree().x, player.y);
+            if (player.state == squirrelState.Climbing && player.bounds.overlaps(platform.getTree().bounds)) player.moveTo(platform.getTree().x + 220, player.y);
         }
 
         // changes the player's position if it's affected by gravity
@@ -190,8 +190,10 @@ public class game_screen implements Screen {
 
         // gets player input and updates the player's position
         player.moveXBy(0);
-        if (Gdx.input.isKeyPressed(Keys.RIGHT) && !Gdx.input.isKeyPressed(Keys.LEFT)) player.moveXBy(200 * deltaTime);
-        if (Gdx.input.isKeyPressed(Keys.LEFT) && !Gdx.input.isKeyPressed(Keys.RIGHT)) player.moveXBy(-200 * deltaTime);
+        if (player.state != squirrelState.Climbing){    
+            if (Gdx.input.isKeyPressed(Keys.RIGHT) && !Gdx.input.isKeyPressed(Keys.LEFT)) player.moveXBy(200 * deltaTime);
+            if (Gdx.input.isKeyPressed(Keys.LEFT) && !Gdx.input.isKeyPressed(Keys.RIGHT)) player.moveXBy(-200 * deltaTime);
+        }
         if (Gdx.input.isKeyPressed(Keys.ENTER)) isPaused = true;
         if (Gdx.input.isKeyPressed(Keys.BACKSPACE)) isPaused = false;
 
