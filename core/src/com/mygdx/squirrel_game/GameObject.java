@@ -5,7 +5,6 @@ import com.badlogic.gdx.math.Rectangle;
 // gameobject is responsible for location and in the future object detection (rectangles/hitboxes)
 public abstract class GameObject extends Rectangle{
     private float dx, dy;
-    Boolean isFacingLeft;
     Rectangle bounds; // used for collision detection
 
     public GameObject(float width, float height) {
@@ -13,7 +12,6 @@ public abstract class GameObject extends Rectangle{
         super.height = height;
         dx = 0;
         dy = 0;
-        isFacingLeft = false;
         bounds = new Rectangle();
     }
 

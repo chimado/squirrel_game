@@ -25,8 +25,11 @@ public class Tree extends GameObject{
     }
 
     public Texture getTreeAnimation(float delta){
-        if (isAnimated && treeAnimation.currentFrame != 11) return treeAnimation.getFrame(delta);
-        else return treeAnimation.frames.get(0);
+        if (isAnimated && treeAnimation.currentFrame != 10) return treeAnimation.getFrame(delta);
+        else {
+            isAnimated = false;
+            return treeAnimation.frames.get(0);
+        }
     }
 
     public void animateTree(){

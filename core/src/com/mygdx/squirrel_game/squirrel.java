@@ -17,6 +17,8 @@ public class squirrel extends GameObject{
 
     public float fallTime; // is the time in milliseconds the player is in the air, used for gravity calculations
     float idle_animation_time;
+    float inTreeTime;
+    Boolean isFacingLeft; // is not changed at flip()
     Boolean isAffectedByGravity;
     Boolean canJump;
     Boolean canClimb;
@@ -34,11 +36,13 @@ public class squirrel extends GameObject{
         super.x = x;
         super.y = y;
         fallTime = 1f;
+        isFacingLeft = false;
         isAffectedByGravity = false;
         canJump = false;
         canClimb = false;
         state = squirrelState.Idle;
         idle_animation_time = 0;
+        inTreeTime = 0;
 
         // initializes the animations and loads all the textures into them
         squirrel_running_animation = new ObjectAnimation();
@@ -58,21 +62,23 @@ public class squirrel extends GameObject{
     public Texture render(float delta) {
         updateBounds();
 
-        // checks if the player is moving up or down
-        if (super.getDY() > 0) {
-            if (canClimb && state != squirrelState.InTree){
-                state = squirrelState.Climbing;
-                fallTime = 1f;
-            }
-
-            else {
-                fallTime += delta;
-                state = squirrelState.Jumping;
-            }
-        }
-
         if (state != squirrelState.InTree) {
-            if (super.getDY() < 0) {
+            inTreeTime = 0;
+
+            // checks if the player is moving up or down
+            if (super.getDY() > 0) {
+                if (canClimb && state != squirrelState.InTree){
+                    state = squirrelState.Climbing;
+                    fallTime = 1f;
+                }
+
+                else {
+                    fallTime += delta;
+                    state = squirrelState.Jumping;
+                }
+            }
+
+            else if (super.getDY() < 0) {
                 fallTime += delta;
                 state = squirrelState.Falling;
             }
@@ -157,10 +163,12 @@ public class squirrel extends GameObject{
             
             case Climbing:
                 outputTexture = squirrel_climbing_animation.getFrame(delta);
+
                 squirrel_idle_animation.resetAnimation();
                 squirrel_running_animation.resetAnimation();
                 squirrel_jumping_animation.resetAnimation();
                 squirrel_falling_animation.resetAnimation();
+                idle_animation_time = 0;
                 break;
             
             case InTree:
@@ -169,11 +177,12 @@ public class squirrel extends GameObject{
                 squirrel_running_animation.resetAnimation();
                 squirrel_jumping_animation.resetAnimation();
                 squirrel_falling_animation.resetAnimation();
+                idle_animation_time = 0;
                 break;
         }
 
         // checks if the last movement has been to the left and mirrors the texture
-        if ((super.isFacingLeft && super.width > 0) || (!super.isFacingLeft && super.width < 0)) {
+        if ((isFacingLeft && super.width > 0) || (!isFacingLeft && super.width < 0)) {
             flip();
         }
 
@@ -188,22 +197,33 @@ public class squirrel extends GameObject{
         super.bounds.width = super.width - 40;
         super.bounds.height = super.height / 3 + 10;
 
-        if (state == squirrelState.Climbing){
+        if ((state == squirrelState.Climbing || state == squirrelState.InTree) && !isFacingLeft) {
             super.bounds.x -= 50;
             super.bounds.y -= 30;
             super.bounds.width /= 2;
             super.bounds.height *= 2;
         }
+
+        else if (state == squirrelState.Climbing || state == squirrelState.InTree) {
+            super.bounds.x -= 100;
+            super.bounds.y -= 30;
+            super.bounds.width /= 2;
+            super.bounds.height *= 2;
+
+            if (state == squirrelState.InTree && isFacingLeft) super.bounds.x += 50;
+        }
     }
 
     // flips the squirrel
     public void flip(){
-        super.width = super.width * -1;
-        super.x = super.x + super.width * -1;
+        if ((state == squirrelState.Climbing && isFacingLeft) || state != squirrelState.Climbing) {
+            super.width = super.width * -1;
+            super.x = super.x + super.width * -1;
 
-        if (isFacingLeft){
-            super.bounds.width = (super.bounds.width * -1) / 1.3f;
-            super.bounds.x = super.bounds.x + super.bounds.width * -1;
+            if (isFacingLeft){
+                super.bounds.width = (super.bounds.width * -1) / 1.3f;
+                super.bounds.x = super.bounds.x + super.bounds.width * -1;
+            }
         }
     }
 
