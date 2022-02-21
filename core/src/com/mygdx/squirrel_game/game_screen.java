@@ -30,6 +30,7 @@ public class game_screen implements Screen {
     Boolean isPaused;
     Array<Platform> platforms; // stores the platforms for the game
     ShapeRenderer shapeRenderer; // is responsible for rendering the hitboxes for debugging purposes
+    CameraView viewBox; // is followed by the camera, loosely follows the player
 
     public game_screen(final squirrel_game game) {
         this.game = game;
@@ -37,6 +38,7 @@ public class game_screen implements Screen {
         deltaTime = 0;
         isPaused = false;
         platforms = new Array<Platform>();
+        viewBox = new CameraView(500, 400, player.x - 150, player.y - 150);
 
         // temporary initialization of the platforms array (in the future this will be replaced by a world generation algorithm)
         for (int i = 0; i < 2; i++){
@@ -64,10 +66,12 @@ public class game_screen implements Screen {
         }
 
         // tell the camera to update its matrices.
+        camera.position.set(viewBox.x, viewBox.y + 300, 0);
 		camera.update();
 
 		// tell the SpriteBatch to render in the coordinate system specified by the camera.
 		game.batch.setProjectionMatrix(camera.combined);
+        shapeRenderer.setProjectionMatrix(camera.combined);
 
         // show hitboxes for debugging purposes
         if (Gdx.input.isKeyPressed(Keys.SPACE)) {
@@ -77,6 +81,7 @@ public class game_screen implements Screen {
         }
 
         game.batch.begin();
+        if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.rect(viewBox.x, viewBox.y, viewBox.width, viewBox.height);
         for (Platform platform : platforms) {
             if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.rect(platform.bounds.x, platform.bounds.y, platform.bounds.width, platform.bounds.height);
             game.batch.draw(platform.getPlatformTexture(), platform.x, platform.y, platform.width, platform.height);
@@ -107,6 +112,17 @@ public class game_screen implements Screen {
         player.canJump = false;
         player.canClimb = false;
         player.inTreeTime += deltaTime;
+
+        // updates the viewBox's position
+        if (!viewBox.contains(player.bounds)) {
+            viewBox.x += player.getDX();
+            viewBox.y += player.getDY();
+
+            if (!viewBox.contains(player.bounds)) {
+                viewBox.x = player.x - 150;
+                viewBox.y = player.y - 150;
+            }
+        }
 
         // checks which platforms the player is touching and moves it accordingly
         for (Platform platform : platforms) {
@@ -212,7 +228,7 @@ public class game_screen implements Screen {
         if (Gdx.input.isKeyPressed(Keys.ENTER)) isPaused = true;
         if (Gdx.input.isKeyPressed(Keys.BACKSPACE)) isPaused = false;
 
-        if (Gdx.input.isKeyPressed(Keys.ESCAPE)){
+        if (Gdx.input.isKeyPressed(Keys.Q)){
             dispose();
             Gdx.app.exit();
         }
