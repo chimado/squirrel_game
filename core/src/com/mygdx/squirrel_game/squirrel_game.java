@@ -12,7 +12,7 @@ public class squirrel_game extends Game {
 	public void create () {
 		batch = new SpriteBatch();
 		font = new BitmapFont();
-		this.setScreen(new game_screen(this));
+		this.setScreen(new UserInterfaceScreen(this));
 	}
 
 	@Override
