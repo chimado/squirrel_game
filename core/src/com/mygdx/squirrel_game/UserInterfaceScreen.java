@@ -78,10 +78,10 @@ public class UserInterfaceScreen implements Screen{
 
     // updates the mouse's position according to the computers mouse
     public void updateMouse(){
-        mousePosition.set(mouse.getX(), mouse.getY(), 0);
+        mousePosition.set(Gdx.input.getX(), Gdx.input.getY(), 0);
         camera.unproject(mousePosition);
-        mouse.x = mousePosition.x;
-        mouse.y = mousePosition.y;
+        mouse.x = mousePosition.x - mouse.width / 2;
+        mouse.y = mousePosition.y - mouse.height / 2;
     }
 
     @Override
