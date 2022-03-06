@@ -21,7 +21,7 @@ import com.badlogic.gdx.math.Vector3;
 public class UserInterfaceScreen implements Screen{
     final squirrel_game game;
 
-    static final int playerStartingX = 200, playerStartingY = 200;
+    static final int playerStartingX = 200, playerStartingY = 100;
     squirrel player;
     Array<Platform> platforms; // stores the platforms for the main menu screen
     OrthographicCamera camera;
@@ -49,6 +49,8 @@ public class UserInterfaceScreen implements Screen{
         mouse = new Rectangle();
         mouse.width = 30;
         mouse.height = 30;
+
+        generatePlatforms();
     }
 
 
@@ -58,11 +60,6 @@ public class UserInterfaceScreen implements Screen{
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         deltaTime = Gdx.graphics.getDeltaTime();
-        if (mouse.overlaps(player.bounds) && Gdx.input.isButtonJustPressed(Input.Buttons.LEFT))
-            deltaTime += 2f;
-        else if (player.idle_animation_time <= 2f){
-            deltaTime = 0;
-        }
 
         // tell the camera to update its matrices.
         camera.update();
@@ -93,7 +90,9 @@ public class UserInterfaceScreen implements Screen{
         // Render objects for background
         game.batch.begin();
 
-        game.batch.draw(player.render(deltaTime), player.x, player.y, player.width, player.height);
+        game.batch.draw(player.render(deltaTime +
+                        (mouseClick(player.bounds) ? 2f : (player.idle_animation_time <= 2f ? -deltaTime : 0))
+                        ), player.x, player.y, player.width, player.height);
 
         for (Platform platform : platforms) {
             game.batch.draw(platform.getPlatformTexture(), platform.x, platform.y, platform.width, platform.height);
@@ -115,6 +114,21 @@ public class UserInterfaceScreen implements Screen{
         camera.unproject(mousePosition);
         mouse.x = mousePosition.x - mouse.width / 2;
         mouse.y = mousePosition.y - mouse.height / 2;
+    }
+
+    // checks if the mouse is clicking a Rectangle
+    public boolean mouseClick(Rectangle Button){
+        if (mouse.overlaps(player.bounds) && Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){
+            return true;
+        }
+        return false;
+    }
+
+    // generates the platforms for the main menu screen
+    public void generatePlatforms(){
+        for (int i = 0; i < 5; i++){
+            platforms.add(new Platform(300, 30, i * 300, 127, true, false));
+        }
     }
 
     @Override
