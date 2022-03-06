@@ -6,6 +6,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
@@ -21,9 +22,17 @@ import com.badlogic.gdx.math.Vector3;
 public class UserInterfaceScreen implements Screen{
     final squirrel_game game;
 
+    public enum Action {
+        nothing,
+        start,
+        options,
+        exit
+    }
+
     static final int playerStartingX = 200, playerStartingY = 100;
     squirrel player;
     Array<Platform> platforms; // stores the platforms for the main menu screen
+    Array<TreeLeafsButton> leafButtons; // stores the buttons for the main menu screen
     OrthographicCamera camera;
     Viewport viewport;
     float deltaTime;
@@ -31,12 +40,15 @@ public class UserInterfaceScreen implements Screen{
     Rectangle mouse; // is responsible for containing the mouse's position and hitbox which is used for button pressing
     // mouse could be changed to an animated object in the future
     Vector3 mousePosition;
+    Action action;
 
     public UserInterfaceScreen(final squirrel_game game){
         this.game = game;
         deltaTime = 0;
         player = new squirrel(playerStartingX, playerStartingY);
         platforms = new Array<Platform>();
+        leafButtons = new Array<TreeLeafsButton>();
+        action = Action.nothing;
 
         // create the camera and the viewport
         camera = new OrthographicCamera();
@@ -51,6 +63,7 @@ public class UserInterfaceScreen implements Screen{
         mouse.height = 30;
 
         generatePlatforms();
+        generateLeafButtons();
     }
 
 
@@ -84,6 +97,10 @@ public class UserInterfaceScreen implements Screen{
                         platform.getDirt().bounds.width, platform.getDirt().bounds.height);
             }
 
+            for (TreeLeafsButton leafButton : leafButtons) {
+                shapeRenderer.rect(leafButton.bounds.x, leafButton.bounds.y, leafButton.bounds.width, leafButton.bounds.height);
+            }
+
             shapeRenderer.end();
         }
 
@@ -100,11 +117,57 @@ public class UserInterfaceScreen implements Screen{
                     platform.getDirt().y, platform.getDirt().width, platform.getDirt().height);
         }
 
+        for (TreeLeafsButton leafButton : leafButtons) {
+            // draws the leaf buttons and animates them accordingly
+            game.batch.draw(leafButton.getLeafTexture(((deltaTime +
+                    (leafButton.bounds.overlaps(mouse) ? (leafButton.Leafs.currentFrame == 0 ? 0.05f : 0) :
+                    (leafButton.Leafs.currentFrame == 0 ? -deltaTime : 0))) *
+                    (leafButton.canBeAnimated ? 1 : 0))
+                    ), leafButton.x, leafButton.y, leafButton.width, leafButton.height);
+
+            // makes sure the animation will only trigger once per mouse overlap
+            if (leafButton.bounds.overlaps(mouse) && leafButton.Leafs.currentFrame == 0) leafButton.canBeAnimated = false;
+            else leafButton.canBeAnimated = true;
+
+        }
+
         game.batch.end();
 
-        if (Gdx.input.isKeyPressed(Input.Keys.Q)){
-            dispose();
-            Gdx.app.exit();
+        for (TreeLeafsButton leafButton : leafButtons) {
+            // checks if the button was clicked
+            if (mouseClick(leafButton.bounds)) {
+
+                // checks which button was clicked and reacts accordingly
+                switch (leafButton.text) {
+                    case "start":
+                        action = Action.start;
+                        break;
+
+                    case "options":
+                        action = Action.options;
+                        break;
+
+                    case "exit":
+                        action = Action.exit;
+                        break;
+                }
+            }
+        }
+
+        // check which action to do
+        switch (action) {
+            case start:
+                dispose();
+                game.setScreen(new game_screen(game));
+                break;
+
+            case options:
+                break;
+
+            case exit:
+                dispose();
+                Gdx.app.exit();
+                break;
         }
     }
 
@@ -118,7 +181,7 @@ public class UserInterfaceScreen implements Screen{
 
     // checks if the mouse is clicking a Rectangle
     public boolean mouseClick(Rectangle Button){
-        if (mouse.overlaps(player.bounds) && Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){
+        if (mouse.overlaps(Button) && Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)){
             return true;
         }
         return false;
@@ -129,6 +192,13 @@ public class UserInterfaceScreen implements Screen{
         for (int i = 0; i < 5; i++){
             platforms.add(new Platform(300, 30, i * 300, 127, true, false));
         }
+    }
+
+    // generates the leaf buttons
+    public void generateLeafButtons(){
+        leafButtons.add(new TreeLeafsButton(new String("start"), 500, 325, 300, 300));
+        leafButtons.add(new TreeLeafsButton(new String("options"), 500, 175, 300, 300));
+        leafButtons.add(new TreeLeafsButton(new String("exit"), 500, 25, 300, 300));
     }
 
     @Override
@@ -155,5 +225,14 @@ public class UserInterfaceScreen implements Screen{
 
     @Override
     public void dispose() {
+        for (Platform platform : platforms) {
+            platform.dispose();
+        }
+
+        for (TreeLeafsButton leafButton : leafButtons){
+            leafButton.dispose();
+        }
+
+        player.dispose();
     }
 }
