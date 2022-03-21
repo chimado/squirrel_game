@@ -8,16 +8,15 @@ public class TreeLeafsButton extends Rectangle {
     ObjectAnimation Leafs;
     Rectangle bounds;
     Boolean canBeAnimated;
-    String text;
+    ButtonManager.Action action;
 
-    public TreeLeafsButton(String text, float x, float y, float width, float height){
+    public TreeLeafsButton(ButtonManager.Action action, float x, float y, float width, float height){
         // update the rectangle's parameters
         super.x = x;
         super.y = y;
         super.width = width;
         super.height = height;
-        this.text = new String();
-        this.text = text;
+        this.action = action;
 
         canBeAnimated = true;
 
@@ -26,7 +25,7 @@ public class TreeLeafsButton extends Rectangle {
 
         // initialize the Leafs object and load textures into it
         Leafs = new ObjectAnimation();
-        Leafs.loadAnimation(text + "_tree", 12);
+        Leafs.loadAnimation( action.name() + "_tree", 12);
     }
 
     // gets the correct texture for rendering
