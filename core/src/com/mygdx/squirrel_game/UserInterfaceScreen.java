@@ -44,7 +44,7 @@ public class UserInterfaceScreen implements Screen{
 
         // initialize the button manager
         chosenActions.add(ButtonManager.Action.start, ButtonManager.Action.options, ButtonManager.Action.exit);
-        buttonManager = new ButtonManager(this.game, this.camera, this.shapeRenderer, this.chosenActions);
+        buttonManager = new ButtonManager(this.game, this.camera, this.chosenActions);
 
         generatePlatforms();
     }
@@ -82,7 +82,7 @@ public class UserInterfaceScreen implements Screen{
             shapeRenderer.end();
         }
 
-        buttonManager.renderButtons();
+        buttonManager.renderButtons(0, 0);
 
         game.batch.draw(player.render(deltaTime +
                         (buttonManager.mouseClick(player.bounds) ? 2f : (player.idle_animation_time <= 2f ? -deltaTime : 0))
@@ -96,7 +96,7 @@ public class UserInterfaceScreen implements Screen{
 
         game.batch.end();
 
-        // check which action to do
+        // check which action to do according to the buttons
         switch (buttonManager.currentAction) {
             case start:
                 dispose();

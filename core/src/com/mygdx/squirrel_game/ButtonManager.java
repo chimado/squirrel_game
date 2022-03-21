@@ -6,7 +6,6 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 // is responsible for button and mouse management
 public class ButtonManager {
@@ -30,13 +29,11 @@ public class ButtonManager {
     Vector3 mousePosition;
     ButtonManager.Action currentAction;
     OrthographicCamera camera;
-    ShapeRenderer shapeRenderer;
 
-    public ButtonManager(final squirrel_game game, OrthographicCamera camera, ShapeRenderer shapeRenderer, Array<ButtonManager.Action> chosenActions){
+    public ButtonManager(final squirrel_game game, OrthographicCamera camera, Array<ButtonManager.Action> chosenActions){
         this.game = game;
         this.chosenActions = chosenActions;
         this.camera = camera;
-        this.shapeRenderer = shapeRenderer;
         currentAction = Action.nothing;
         leafButtons = new Array<TreeLeafsButton>();
         ypos = 325;
@@ -53,18 +50,10 @@ public class ButtonManager {
         }
     }
 
-    // should only be called mid-render (including shape render)
-    public void renderButtons(){
+    // should only be called at the end of render
+    public void renderButtons(float offestX, float offestY){
         deltaTime = Gdx.graphics.getDeltaTime();
         updateMouse();
-
-        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-            shapeRenderer.rect(mouse.x, mouse.y, mouse.width, mouse.height);
-
-            for (TreeLeafsButton leafButton : leafButtons) {
-                shapeRenderer.rect(leafButton.bounds.x, leafButton.bounds.y, leafButton.bounds.width, leafButton.bounds.height);
-            }
-        }
 
         for (TreeLeafsButton leafButton : leafButtons) {
             // draws the leaf buttons and animates them accordingly
@@ -72,7 +61,7 @@ public class ButtonManager {
                     (leafButton.bounds.overlaps(mouse) ? (leafButton.Leafs.currentFrame == 0 ? 0.05f : 0) :
                             (leafButton.Leafs.currentFrame == 0 ? -deltaTime : 0))) *
                     (leafButton.canBeAnimated ? 1 : 0))
-            ), leafButton.x, leafButton.y, leafButton.width, leafButton.height);
+            ), leafButton.x + offestX, leafButton.y + offestY, leafButton.width, leafButton.height);
 
             // makes sure the animation will only trigger once per mouse overlap
             if (leafButton.bounds.overlaps(mouse) && leafButton.Leafs.currentFrame == 0) leafButton.canBeAnimated = false;

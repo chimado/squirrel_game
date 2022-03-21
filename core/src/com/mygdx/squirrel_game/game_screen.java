@@ -31,6 +31,8 @@ public class game_screen implements Screen {
     Array<Platform> platforms; // stores the platforms for the game
     ShapeRenderer shapeRenderer; // is responsible for rendering the hitboxes for debugging purposes
     CameraView viewBox; // is followed by the camera, loosely follows the player
+    Array<ButtonManager.Action> chosenActions;
+    ButtonManager buttonManager;
 
     public game_screen(final squirrel_game game) {
         this.game = game;
@@ -39,6 +41,7 @@ public class game_screen implements Screen {
         isPaused = false;
         platforms = new Array<Platform>();
         viewBox = new CameraView(500, 400, player.x - 150, player.y - 150);
+        chosenActions = new Array<ButtonManager.Action>();
 
         // temporary initialization of the platforms array (in the future this will be replaced by a world generation algorithm)
         for (int i = 0; i < 2; i++){
@@ -52,6 +55,10 @@ public class game_screen implements Screen {
 		camera.setToOrtho(false, worldWidth, worldHeight);
         viewport = new StretchViewport(worldWidth, worldHeight, camera);
         shapeRenderer = new ShapeRenderer();
+
+        // initialize the button manager
+        chosenActions.add(ButtonManager.Action.resume, ButtonManager.Action.main_menu);
+        buttonManager = new ButtonManager(this.game, this.camera, this.chosenActions);
     }
 
     @Override
@@ -99,6 +106,11 @@ public class game_screen implements Screen {
 
         if (player.state != squirrelState.InTree && player.state != squirrelState.Climbing) game.batch.draw(player.render(deltaTime), player.x, player.y - 23, player.width, player.height);
         else if (player.state == squirrelState.Climbing && player.state != squirrelState.InTree) game.batch.draw(player.render(deltaTime), player.x - 80, player.y - 23, player.width, player.height);
+
+        // renders the buttons if the game is paused
+        if (isPaused) buttonManager.renderButtons(0, 0);
+        else buttonManager.renderButtons(-9000, -9000);
+
         game.batch.end();
 
         if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.end();
@@ -225,12 +237,19 @@ public class game_screen implements Screen {
             if (Gdx.input.isKeyPressed(Keys.RIGHT) && !Gdx.input.isKeyPressed(Keys.LEFT)) player.moveXBy(200 * deltaTime);
             if (Gdx.input.isKeyPressed(Keys.LEFT) && !Gdx.input.isKeyPressed(Keys.RIGHT)) player.moveXBy(-200 * deltaTime);
         }
-        if (Gdx.input.isKeyPressed(Keys.ENTER)) isPaused = true;
-        if (Gdx.input.isKeyPressed(Keys.BACKSPACE)) isPaused = false;
 
-        if (Gdx.input.isKeyPressed(Keys.Q)){
-            dispose();
-            Gdx.app.exit();
+        if (Gdx.input.isKeyJustPressed(Keys.ESCAPE)) isPaused = !isPaused;
+
+        // check which action to do according to the buttons
+        switch (buttonManager.currentAction) {
+            case main_menu:
+                dispose();
+                game.setScreen(new UserInterfaceScreen(game));
+                break;
+
+            case resume:
+                isPaused = false;
+                break;
         }
     }
 
@@ -259,6 +278,8 @@ public class game_screen implements Screen {
 	@Override
 	public void dispose() {
         player.dispose();
+
+        buttonManager.dispose();
 
         for (Platform platform : platforms){
             platform.dispose();
