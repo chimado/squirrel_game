@@ -44,9 +44,8 @@ public class game_screen implements Screen {
         chosenActions = new Array<ButtonManager.Action>();
 
         // temporary initialization of the platforms array (in the future this will be replaced by a world generation algorithm)
-        for (int i = 0; i < 2; i++){
-            platforms.add(new Platform(300, 30, 400 + i * 200, 100 + i * 200, true, false));
-        }
+        for (int i = 0; i < 2; i++) platforms.add(new Platform(300, 30, 400 + i * 200, 100 + i * 200, true, false));
+
 
         platforms.add(new Platform(300, 30, 800, 100, true, true));
 
@@ -59,7 +58,6 @@ public class game_screen implements Screen {
         // initialize the button manager
         chosenActions.add(ButtonManager.Action.resume, ButtonManager.Action.main_menu);
         buttonManager = new ButtonManager(this.game, this.camera, this.chosenActions);
-        buttonManager.moveButtonBoundsXBy(-150);
     }
 
     @Override
@@ -69,15 +67,14 @@ public class game_screen implements Screen {
         deltaTime = Gdx.graphics.getDeltaTime();
 
         // pauses the game
-        if (isPaused){
-            deltaTime = 0;
-        }
+        if (isPaused) deltaTime = 0;
 
         // tell the camera to update its matrices.
-        camera.position.set(viewBox.x, viewBox.y + 300, 0);
+        camera.position.set(viewBox.x, 300, 0);
 		camera.update();
+        buttonManager.setCamera(camera);
 
-		// tell the SpriteBatch to render in the coordinate system specified by the camera.
+        // tell the SpriteBatch to render in the coordinate system specified by the camera.
 		game.batch.setProjectionMatrix(camera.combined);
         shapeRenderer.setProjectionMatrix(camera.combined);
 
@@ -110,7 +107,8 @@ public class game_screen implements Screen {
 
         // renders the buttons if the game is paused
         if (isPaused) {
-            buttonManager.renderButtons(-150, 0);
+            buttonManager.renderButtons(viewBox.x - 600, 0);
+            buttonManager.moveButtonBoundsXTo((int) viewBox.x);
             buttonManager.changeButtonActivation(true);
         }
         else {
@@ -123,9 +121,7 @@ public class game_screen implements Screen {
         if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.end();
 
         // the player needs to be facing right when calculating its position in order for the overlaps function to work
-        if (player.isFacingLeft) {
-            player.flip();
-        }
+        if (player.isFacingLeft) player.flip();
 
         player.isAffectedByGravity = true;
         player.canJump = false;
@@ -134,13 +130,9 @@ public class game_screen implements Screen {
 
         // updates the viewBox's position
         if (!viewBox.contains(player.bounds)) {
-            viewBox.x += player.getDX();
-            viewBox.y += player.getDY();
+            viewBox.moveBy(player.getDX(), player.getDY());
 
-            if (!viewBox.contains(player.bounds)) {
-                viewBox.x = player.x - 150;
-                viewBox.y = player.y - 150;
-            }
+            if (!viewBox.contains(player.bounds)) viewBox.moveTo(player.x - 150, player.y - 150);
         }
 
         // checks which platforms the player is touching and moves it accordingly
@@ -224,19 +216,14 @@ public class game_screen implements Screen {
         if (Gdx.input.isKeyPressed(Keys.UP) && (player.canJump || player.canClimb)) player.moveYBy(250 * deltaTime);
 
         // flips the player back after the use of overlaps is over
-        if (player.isFacingLeft) {
-            player.flip();
-        }
+        if (player.isFacingLeft) player.flip();
 
         // the next two if statements are for debugging purposes only
         // they reduce the number of game restarts necessary for development by making sure the player won't go out of bounds
-        if (player.y < -200){
-            player.moveTo(player.x, 340);
-        }
+        if (player.y < -200) player.moveTo(player.x, 340);
 
-        if (player.x > worldWidth || player.x < 0){
-            player.moveTo(600, player.y);
-        }
+        if (player.x > worldWidth || player.x < 0) player.moveTo(600, player.y);
+
 
         // gets player input and updates the player's position
         player.moveXBy(0);
@@ -288,8 +275,6 @@ public class game_screen implements Screen {
 
         buttonManager.dispose();
 
-        for (Platform platform : platforms){
-            platform.dispose();
-        }
+        for (Platform platform : platforms) platform.dispose();
 	}
 }
