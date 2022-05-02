@@ -59,6 +59,7 @@ public class game_screen implements Screen {
         // initialize the button manager
         chosenActions.add(ButtonManager.Action.resume, ButtonManager.Action.main_menu);
         buttonManager = new ButtonManager(this.game, this.camera, this.chosenActions);
+        buttonManager.moveButtonBoundsXBy(-150);
     }
 
     @Override
@@ -108,8 +109,14 @@ public class game_screen implements Screen {
         else if (player.state == squirrelState.Climbing && player.state != squirrelState.InTree) game.batch.draw(player.render(deltaTime), player.x - 80, player.y - 23, player.width, player.height);
 
         // renders the buttons if the game is paused
-        if (isPaused) buttonManager.renderButtons(0, 0);
-        else buttonManager.renderButtons(-9000, -9000);
+        if (isPaused) {
+            buttonManager.renderButtons(-150, 0);
+            buttonManager.changeButtonActivation(true);
+        }
+        else {
+            buttonManager.renderButtons(-9000, -9000);
+            buttonManager.changeButtonActivation(false);
+        }
 
         game.batch.end();
 

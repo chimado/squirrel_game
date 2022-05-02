@@ -36,7 +36,6 @@ public class ButtonManager {
         this.camera = camera;
         currentAction = Action.nothing;
         leafButtons = new Array<TreeLeafsButton>();
-        ypos = 325;
 
         // initialize the mouse objects
         mousePosition = new Vector3();
@@ -44,6 +43,8 @@ public class ButtonManager {
         mouse.width = 30;
         mouse.height = 30;
 
+        // create the leaf buttons
+        ypos = 325;
         for (ButtonManager.Action action : chosenActions) {
             leafButtons.add(new TreeLeafsButton(action, 500, ypos, 300, 300));
             ypos -= 150;
@@ -51,7 +52,7 @@ public class ButtonManager {
     }
 
     // should only be called at the end of render
-    public void renderButtons(float offestX, float offestY){
+    public void renderButtons(float offsetX, float offsetY){
         deltaTime = Gdx.graphics.getDeltaTime();
         updateMouse();
 
@@ -61,19 +62,33 @@ public class ButtonManager {
                     (leafButton.bounds.overlaps(mouse) ? (leafButton.Leafs.currentFrame == 0 ? 0.05f : 0) :
                             (leafButton.Leafs.currentFrame == 0 ? -deltaTime : 0))) *
                     (leafButton.canBeAnimated ? 1 : 0))
-            ), leafButton.x + offestX, leafButton.y + offestY, leafButton.width, leafButton.height);
+            ), leafButton.x + offsetX, leafButton.y + offsetY, leafButton.width, leafButton.height);
 
             // makes sure the animation will only trigger once per mouse overlap
             if (leafButton.bounds.overlaps(mouse) && leafButton.Leafs.currentFrame == 0) leafButton.canBeAnimated = false;
             else leafButton.canBeAnimated = true;
-
         }
 
+        currentAction = Action.nothing;
         for (TreeLeafsButton leafButton : leafButtons) {
-            // checks if the button was clicked
-            if (mouseClick(leafButton.bounds)) {
+            // checks if the button was clicked and changes currentAction accordingly
+            if (mouseClick(leafButton.bounds) && leafButton.isActive) {
                 currentAction = leafButton.action;
             }
+        }
+    }
+
+    // moves the buttons bounds by x
+    public void moveButtonBoundsXBy(int x) {
+        for (TreeLeafsButton leafButton : leafButtons) {
+            leafButton.bounds.x += x;
+        }
+    }
+
+    // changes the button activation, e.i if it can be pressed
+    public void changeButtonActivation(Boolean active) {
+        for (TreeLeafsButton leafButton : leafButtons) {
+            leafButton.isActive = active;
         }
     }
 

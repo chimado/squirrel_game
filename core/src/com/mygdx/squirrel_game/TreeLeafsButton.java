@@ -8,6 +8,7 @@ public class TreeLeafsButton extends Rectangle {
     ObjectAnimation Leafs;
     Rectangle bounds;
     Boolean canBeAnimated;
+    Boolean isActive;
     ButtonManager.Action action;
 
     public TreeLeafsButton(ButtonManager.Action action, float x, float y, float width, float height){
@@ -19,6 +20,7 @@ public class TreeLeafsButton extends Rectangle {
         this.action = action;
 
         canBeAnimated = true;
+        isActive = true;
 
         // create the bounds for the button
         bounds = new Rectangle(x + width / 2 - 85, y + height / 2 - 10, width / 2f + 15, height / 2.5f);
