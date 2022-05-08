@@ -116,7 +116,7 @@ public class UserInterfaceScreen implements Screen{
     // generates the platforms for the main menu screen
     public void generatePlatforms(){
         for (int i = 0; i < 5; i++){
-            platforms.add(new Platform(300, 30, i * 300, 127, false));
+            platforms.add(new Platform(300, 30, i * 300, 127, false, false, 0, 0));
         }
     }
 

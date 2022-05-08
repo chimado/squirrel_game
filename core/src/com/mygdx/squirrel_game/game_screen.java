@@ -47,7 +47,7 @@ public class game_screen implements Screen {
         chosenActions = new Array<ButtonManager.Action>();
         worldGenerator = new WorldGenerator(0);
 
-        platforms.add(new Platform(810, basePlatformHeight, baseY - 810, 900, false));
+        platforms.add(new Platform(810, basePlatformHeight, baseY - 810, 900, false, false, 0, 0));
         generatePlatforms();
 
         // create the camera and the viewport
@@ -99,6 +99,11 @@ public class game_screen implements Screen {
             if (platform.hasTree) {
                 game.batch.draw(platform.getTree().getTreeAnimation(deltaTime), platform.getTree().x, platform.getTree().y - 45, platform.getTree().width, platform.getTree().height);
                 if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.rect(platform.getTree().bounds.x, platform.getTree().bounds.y - 45, platform.getTree().bounds.width, platform.getTree().bounds.height);
+            }
+
+            if (platform.hasAcorn){
+                game.batch.draw(platform.getAcorn().getAcornTexture(deltaTime), platform.getAcorn().x, platform.getAcorn().y, platform.getAcorn().width, platform.getAcorn().height);
+                if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.rect(platform.getAcorn().bounds.x, platform.getAcorn().bounds.y, platform.getAcorn().bounds.width, platform.getAcorn().bounds.height);
             }
         }
 
@@ -196,6 +201,11 @@ public class game_screen implements Screen {
                 // checks if the player has reached the top of the tree
                 if (platform.getTree().bounds.y + platform.getTree().bounds.height < player.bounds.y * 1.2f && player.state == squirrelState.Climbing && player.bounds.overlaps(platform.getTree().bounds)) player.state = squirrelState.InTree;
             }
+
+            // checks if a given acorn should be animated
+            if (platform.hasAcorn && player.bounds.overlaps(platform.getAcorn().bounds)) {
+                platform.getAcorn().animateAcorn();
+            }
         }
 
         if (player.state == squirrelState.InTree) {
@@ -253,7 +263,8 @@ public class game_screen implements Screen {
         nextChunkID = (int) (Math.random() * 5);
 
         for (ChunkTemplate chunk : worldGenerator.GenerateChunk(nextChunkID)) {
-            platforms.add(new Platform(chunk.width, chunk.height, chunk.x, chunk.y, chunk.hasTree));
+            platforms.add(new Platform(chunk.width, chunk.height, chunk.x, chunk.y,
+                    chunk.hasTree, chunk.hasAcorn, chunk.acornX, chunk.acornY));
         }
     }
 

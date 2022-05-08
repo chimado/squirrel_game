@@ -7,12 +7,14 @@ public class Acorn extends GameObject{
 
     ObjectAnimation acornAnimation;
     Boolean isAnimated;
+    int animationCounter;
 
-    public Acorn(float width, float height, int x, int y) {
-        super(width, height);
+    public Acorn(int x, int y) {
+        super(40, 60);
         super.x = x;
         super.y = y;
         isAnimated = false;
+        animationCounter = 0;
 
         acornAnimation = new ObjectAnimation();
         acornAnimation.loadAnimation("acorn", 4);
@@ -25,11 +27,22 @@ public class Acorn extends GameObject{
     }
 
     public Texture getAcornTexture(float delta) {
-        if (acornAnimation.currentFrame == 3) dispose();
+        if (animationCounter > 3) dispose();
 
-        if (isAnimated) return acornAnimation.getFrame(delta);
+        if (isAnimated) {
+            animationCounter++;
+            return acornAnimation.getFrame(delta);
+        }
         else return acornAnimation.getSpecifiedFrame(0);
     }
 
-    public void dispose() { acornAnimation.dispose(); }
+    public void animateAcorn() { isAnimated = true; }
+
+    public void dispose() {
+        super.x = -9000;
+        super.y = -9000;
+        super.bounds.x = -9000;
+        super.bounds.y = -9000;
+        acornAnimation.dispose();
+    }
 }
