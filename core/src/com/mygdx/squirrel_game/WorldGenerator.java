@@ -12,10 +12,10 @@ public class WorldGenerator {
 
     public WorldGenerator(int newEndOfWorld) {
         ChunkTemplateArray = new Array<ChunkTemplate>();
-        setEndOfWorld(newEndOfWorld);
+        endOfWorld = newEndOfWorld;
     }
 
-    public void setEndOfWorld(int newEndOfWorld) {endOfWorld = newEndOfWorld;}
+    public void changeEndOfWorld(int newEndOfWorld) {endOfWorld += newEndOfWorld;}
 
     public Array<ChunkTemplate> GenerateChunk(int chunkType) {
         if (!ChunkTemplateArray.isEmpty()) ChunkTemplateArray.clear();
@@ -29,6 +29,22 @@ public class WorldGenerator {
 
             case 1:
                 Chunk1();
+                break;
+
+            case 2:
+                Chunk2();
+                break;
+
+            case 3:
+                Chunk3();
+                break;
+
+            case 4:
+                Chunk4();
+                break;
+
+            case 5:
+                Chunk5();
                 break;
         }
 
@@ -46,17 +62,50 @@ public class WorldGenerator {
         addChunkTemplate(450, 500, false);
     }
 
+    // big jump over void
     private void Chunk1() {
         addChunkTemplate(200, 400, false);
-        addChunkTemplate(400, 100, true);
-        addChunkTemplate(400, 400, false);
+        addChunkTemplate(400, 400, true);
+        addChunkTemplate(700, 100, false);
+        changeEndOfWorld(300);
+    }
+
+    // nice hill with trees
+    private void Chunk2() {
+        addChunkTemplate(0, 500, true);
+        addChunkTemplate(100, 450, true);
+    }
+
+    // jump to higher place
+    private void Chunk3() {
+        addChunkTemplate(100, 400, false);
+        changeEndOfWorld(300);
+        addChunkTemplate(200, 400, false);
+    }
+
+    // double jump stairs
+    private void Chunk4() {
+        addChunkTemplate(100, 400, false);
+        changeEndOfWorld(300);
+        addChunkTemplate(200, 400, false);
+        changeEndOfWorld(300);
+        addChunkTemplate(300, 400, false);
+    }
+
+    // double jump stairs with trees and big jump at the end
+    private void Chunk5() {
+        addChunkTemplate(0, 400, true);
+        addChunkTemplate(300, 400, true);
+        addChunkTemplate(600, 400, true);
+        addChunkTemplate(800, 100, false);
+        changeEndOfWorld(200);
     }
 
     // adds a new chunk to the chunk template array
     // x and y coordinates are relative to the current position of the end of the world
     private void addChunkTemplate(int y, int width, Boolean hasTree){
         ChunkTemplateArray.add(new ChunkTemplate(worldStart + endOfWorld, y + baseY, width, basePlatformHeight, hasTree));
-        setEndOfWorld(endOfWorld + width);
+        changeEndOfWorld(width);
     }
 
 }

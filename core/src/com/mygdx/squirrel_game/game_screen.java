@@ -43,7 +43,7 @@ public class game_screen implements Screen {
         deltaTime = 0;
         isPaused = false;
         platforms = new Array<Platform>();
-        viewBox = new CameraView(500, 400, player.x - 150, player.y - 150);
+        viewBox = new CameraView(400, 400, player.x - 150, player.y - 150);
         chosenActions = new Array<ButtonManager.Action>();
         worldGenerator = new WorldGenerator(0);
 
@@ -242,7 +242,7 @@ public class game_screen implements Screen {
 
     // generates new platforms using the world generation
     public void generatePlatforms() {
-        nextChunkID = 1; //(int) (Math.random() * 5);
+        nextChunkID = (int) (Math.random() * 5);
 
         for (ChunkTemplate chunk : worldGenerator.GenerateChunk(nextChunkID)) {
             platforms.add(new Platform(chunk.width, chunk.height, chunk.x, chunk.y, chunk.hasTree));
