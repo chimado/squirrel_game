@@ -22,8 +22,10 @@ public class game_screen implements Screen {
     final squirrel_game game;
     squirrel player;
     // stores the world's size
-    static final int worldWidth = 1280, worldHeight = 800;
-    
+    static final int worldWidth = 1280, worldHeight = 800,
+            baseY = 200, worldStart = 200, basePlatformHeight = 30;
+
+    int nextChunkID;
     OrthographicCamera camera;
     Viewport viewport;
     float deltaTime;
@@ -45,9 +47,7 @@ public class game_screen implements Screen {
         chosenActions = new Array<ButtonManager.Action>();
         worldGenerator = new WorldGenerator(0);
 
-        // temporary initialization of the platforms array (in the future this will be replaced by a world generation algorithm)
-        // for (int i = 0; i < 2; i++) platforms.add(new Platform(300, 30, 400 + i * 200, 100 + i * 200, true, false));
-        // platforms.add(new Platform(300, 30, 800, 100, true, true));
+        platforms.add(new Platform(300, basePlatformHeight, baseY - 300, 900, true, false));
         generatePlatforms();
 
         // create the camera and the viewport
@@ -59,6 +59,7 @@ public class game_screen implements Screen {
         // initialize the button manager
         chosenActions.add(ButtonManager.Action.resume, ButtonManager.Action.main_menu);
         buttonManager = new ButtonManager(this.game, this.camera, this.chosenActions);
+        buttonManager.moveButtonBoundsYBy(100);
     }
 
     @Override
@@ -71,7 +72,7 @@ public class game_screen implements Screen {
         if (isPaused) deltaTime = 0;
 
         // tell the camera to update its matrices.
-        camera.position.set(viewBox.x, 300, 0);
+        camera.position.set(viewBox.x, 450, 0);
 		camera.update();
         buttonManager.setCamera(camera);
 
@@ -108,7 +109,7 @@ public class game_screen implements Screen {
 
         // renders the buttons if the game is paused
         if (isPaused) {
-            buttonManager.renderButtons(viewBox.x - 600, 0);
+            buttonManager.renderButtons(viewBox.x - 640, 100);
             buttonManager.moveButtonBoundsXTo((int) viewBox.x);
             buttonManager.changeButtonActivation(true);
         }
@@ -250,7 +251,9 @@ public class game_screen implements Screen {
 
     // generates new platforms using the world generation
     public void generatePlatforms() {
-        for (ChunkTemplate chunk : worldGenerator.GenerateChunk(1)) {
+        nextChunkID = 0; //(int) (Math.random() * 5);
+
+        for (ChunkTemplate chunk : worldGenerator.GenerateChunk(nextChunkID)) {
             platforms.add(new Platform(chunk.width, chunk.height, chunk.x, chunk.y, chunk.hasDirt, chunk.hasTree));
         }
     }

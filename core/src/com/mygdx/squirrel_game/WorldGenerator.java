@@ -2,6 +2,9 @@ package com.mygdx.squirrel_game;
 
 import com.badlogic.gdx.utils.Array;
 
+import static com.mygdx.squirrel_game.game_screen.basePlatformHeight;
+import static com.mygdx.squirrel_game.game_screen.worldStart;
+
 // is responsible for generating the world in the game screen
 // outputs an array of chunk templates to fill platform objects with
 public class WorldGenerator {
@@ -19,18 +22,22 @@ public class WorldGenerator {
         if (!ChunkTemplateArray.isEmpty()) ChunkTemplateArray.clear();
 
         switch (chunkType) {
-            case 1:
-                Chunk1();
+            case 0:
+                Chunk0();
                 break;
         }
 
         return ChunkTemplateArray;
     }
 
-    private void Chunk1() {
-        ChunkTemplateArray.add(new ChunkTemplate(400, 100, 300, 30, endOfWorld, false, false));
-        ChunkTemplateArray.add(new ChunkTemplate(500, 200, 300, 30, endOfWorld, true, true));
+    private void Chunk0() {
+        addChunkTemplate(300, 200, 300, true, true);
 
         setEndOfWorld(endOfWorld + 500);
     }
+
+    // adds a new chunk to the chunk template array
+    private void addChunkTemplate(int x, int y, int width, Boolean hasDirt, Boolean hasTree){
+        if (x + endOfWorld < worldStart) x = worldStart + endOfWorld; // makes sure no chunks will be created outside the world
+        ChunkTemplateArray.add(new ChunkTemplate(x, y, width, basePlatformHeight, hasDirt, hasTree));}
 }

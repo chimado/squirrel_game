@@ -85,6 +85,13 @@ public class ButtonManager {
         }
     }
 
+    // moves the buttons bounds by y
+    public void moveButtonBoundsYBy(int y) {
+        for (TreeLeafsButton leafButton : leafButtons) {
+            leafButton.bounds.y += y;
+        }
+    }
+
     public void setCamera(OrthographicCamera newCamera){
         this.camera = newCamera;
     }
