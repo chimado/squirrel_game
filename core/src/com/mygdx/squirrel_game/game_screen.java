@@ -266,7 +266,7 @@ public class game_screen implements Screen {
 
         for (ChunkTemplate chunk : worldGenerator.GenerateChunk(nextChunkID)) {
             platforms.add(new Platform(chunk.width, chunk.height, chunk.x, chunk.y,
-                    chunk.hasTree, (int) (Math.random() * 3) == 3 ? chunk.hasAcorn : false
+                    chunk.hasTree, (int) (Math.random() * 10) % 2 == 1 ? chunk.hasAcorn : false
                     , chunk.acornX, chunk.acornY));
         }
     }
