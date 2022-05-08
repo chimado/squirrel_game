@@ -33,6 +33,7 @@ public class game_screen implements Screen {
     CameraView viewBox; // is followed by the camera, loosely follows the player
     Array<ButtonManager.Action> chosenActions;
     ButtonManager buttonManager;
+    WorldGenerator worldGenerator; // generates the world
 
     public game_screen(final squirrel_game game) {
         this.game = game;
@@ -42,12 +43,12 @@ public class game_screen implements Screen {
         platforms = new Array<Platform>();
         viewBox = new CameraView(500, 400, player.x - 150, player.y - 150);
         chosenActions = new Array<ButtonManager.Action>();
+        worldGenerator = new WorldGenerator(0);
 
         // temporary initialization of the platforms array (in the future this will be replaced by a world generation algorithm)
-        for (int i = 0; i < 2; i++) platforms.add(new Platform(300, 30, 400 + i * 200, 100 + i * 200, true, false));
-
-
-        platforms.add(new Platform(300, 30, 800, 100, true, true));
+        // for (int i = 0; i < 2; i++) platforms.add(new Platform(300, 30, 400 + i * 200, 100 + i * 200, true, false));
+        // platforms.add(new Platform(300, 30, 800, 100, true, true));
+        generatePlatforms();
 
         // create the camera and the viewport
 		camera = new OrthographicCamera();
@@ -244,6 +245,13 @@ public class game_screen implements Screen {
             case resume:
                 isPaused = false;
                 break;
+        }
+    }
+
+    // generates new platforms using the world generation
+    public void generatePlatforms() {
+        for (ChunkTemplate chunk : worldGenerator.GenerateChunk(1)) {
+            platforms.add(new Platform(chunk.width, chunk.height, chunk.x, chunk.y, chunk.hasDirt, chunk.hasTree));
         }
     }
 
