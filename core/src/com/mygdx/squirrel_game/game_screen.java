@@ -39,7 +39,7 @@ public class game_screen implements Screen {
 
     public game_screen(final squirrel_game game) {
         this.game = game;
-        player = new squirrel(640, 300);
+        player = new squirrel(worldStart + 100, 300);
         deltaTime = 0;
         isPaused = false;
         platforms = new Array<Platform>();

@@ -55,7 +55,7 @@ public class WorldGenerator {
     }
 
     // connects the chunks together, must be present at the end and start of each chunk
-    private void ChunkConnector() {addChunkTemplate(0, 500, false);}
+    private void ChunkConnector() {addChunkTemplate(0, 300, false);}
 
     // big jump with tree
     private void Chunk0() {
@@ -68,7 +68,7 @@ public class WorldGenerator {
         addChunkTemplate(200, 400, false);
         addChunkTemplate(400, 400, true);
         addChunkTemplate(700, 100, false);
-        changeEndOfWorld(300);
+        changeEndOfWorld(200);
     }
 
     // nice hill with trees
