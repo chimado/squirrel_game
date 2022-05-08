@@ -25,7 +25,7 @@ public class game_screen implements Screen {
     static final int worldWidth = 1280, worldHeight = 800,
             baseY = 200, worldStart = 200, basePlatformHeight = 30;
 
-    int nextChunkID;
+    int nextChunkID, score;
     OrthographicCamera camera;
     Viewport viewport;
     float deltaTime;
@@ -39,8 +39,9 @@ public class game_screen implements Screen {
 
     public game_screen(final squirrel_game game) {
         this.game = game;
-        player = new squirrel(worldStart + 100, 300);
+        player = new squirrel(worldStart + 100, baseY);
         deltaTime = 0;
+        score = 0;
         isPaused = false;
         platforms = new Array<Platform>();
         viewBox = new CameraView(400, 400, player.x - 150, player.y - 150);
@@ -203,8 +204,9 @@ public class game_screen implements Screen {
             }
 
             // checks if a given acorn should be animated
-            if (platform.hasAcorn && player.bounds.overlaps(platform.getAcorn().bounds)) {
+            if (platform.hasAcorn && player.bounds.overlaps(platform.getAcorn().bounds) && platform.getAcorn().isAnimated == false) {
                 platform.getAcorn().animateAcorn();
+                score++;
             }
         }
 
@@ -264,7 +266,8 @@ public class game_screen implements Screen {
 
         for (ChunkTemplate chunk : worldGenerator.GenerateChunk(nextChunkID)) {
             platforms.add(new Platform(chunk.width, chunk.height, chunk.x, chunk.y,
-                    chunk.hasTree, chunk.hasAcorn, chunk.acornX, chunk.acornY));
+                    chunk.hasTree, (int) (Math.random() * 3) == 3 ? chunk.hasAcorn : false
+                    , chunk.acornX, chunk.acornY));
         }
     }
 
