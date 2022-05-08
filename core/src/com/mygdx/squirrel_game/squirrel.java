@@ -12,7 +12,8 @@ public class squirrel extends GameObject{
         Jumping,
         Idle,
         Climbing,
-        InTree
+        InTree,
+        Dead
     }
 
     public float fallTime; // is the time in milliseconds the player is in the air, used for gravity calculations
@@ -107,6 +108,9 @@ public class squirrel extends GameObject{
             }
         }
 
+        // checks if the player is dead
+        if (y < 0) state = squirrelState.Dead;
+
         // checks which animation should play according to the state enum
         // resets all other animations (not a good solution for that but it works well enough for now)
         switch (state) {
@@ -179,6 +183,16 @@ public class squirrel extends GameObject{
                 squirrel_falling_animation.resetAnimation();
                 idle_animation_time = 0;
                 break;
+
+            case Dead:
+                squirrel_running_animation.getSpecifiedFrame(6);
+                squirrel_climbing_animation.resetAnimation();
+                squirrel_idle_animation.resetAnimation();
+                squirrel_jumping_animation.resetAnimation();
+                squirrel_falling_animation.resetAnimation();
+                idle_animation_time = 0;
+                break;
+
         }
 
         // checks if the last movement has been to the left and mirrors the texture

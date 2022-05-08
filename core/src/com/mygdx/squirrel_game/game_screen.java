@@ -215,20 +215,25 @@ public class game_screen implements Screen {
         // checks if world generation should be activated and acts accordingly
         if (worldGenerator.getEndOfWorld() - player.getX() < 1200) generatePlatforms();
 
-        // changes the player's position if it's jumping or climbing
-        if (Gdx.input.isKeyPressed(Keys.UP) && (player.canJump || player.canClimb)) player.moveYBy(250 * deltaTime);
+        if (player.state != squirrelState.Dead)
+        {
+            // changes the player's position if it's jumping or climbing
+            if (Gdx.input.isKeyPressed(Keys.UP) && (player.canJump || player.canClimb)) player.moveYBy(250 * deltaTime);
+
+            // gets player input and updates the player's position
+            player.moveXBy(0);
+            if (player.state != squirrelState.Climbing && player.state != squirrelState.InTree) {
+                if (Gdx.input.isKeyPressed(Keys.RIGHT) && !Gdx.input.isKeyPressed(Keys.LEFT))
+                    player.moveXBy(200 * deltaTime);
+                if (Gdx.input.isKeyPressed(Keys.LEFT) && !Gdx.input.isKeyPressed(Keys.RIGHT))
+                    player.moveXBy(-200 * deltaTime);
+            }
+
+            if (Gdx.input.isKeyJustPressed(Keys.ESCAPE)) isPaused = !isPaused;
+        }
 
         // flips the player back after the use of overlaps is over
         if (player.isFacingLeft) player.flip();
-
-        // gets player input and updates the player's position
-        player.moveXBy(0);
-        if (player.state != squirrelState.Climbing && player.state != squirrelState.InTree){    
-            if (Gdx.input.isKeyPressed(Keys.RIGHT) && !Gdx.input.isKeyPressed(Keys.LEFT)) player.moveXBy(200 * deltaTime);
-            if (Gdx.input.isKeyPressed(Keys.LEFT) && !Gdx.input.isKeyPressed(Keys.RIGHT)) player.moveXBy(-200 * deltaTime);
-        }
-
-        if (Gdx.input.isKeyJustPressed(Keys.ESCAPE)) isPaused = !isPaused;
 
         // check which action to do according to the buttons
         switch (buttonManager.currentAction) {
