@@ -47,7 +47,7 @@ public class game_screen implements Screen {
         chosenActions = new Array<ButtonManager.Action>();
         worldGenerator = new WorldGenerator(0);
 
-        platforms.add(new Platform(300, basePlatformHeight, baseY - 300, 900, true, false));
+        platforms.add(new Platform(810, basePlatformHeight, baseY - 810, 900, true, false));
         generatePlatforms();
 
         // create the camera and the viewport

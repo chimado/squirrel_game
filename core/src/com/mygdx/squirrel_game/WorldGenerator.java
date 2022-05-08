@@ -31,7 +31,7 @@ public class WorldGenerator {
     }
 
     private void Chunk0() {
-        addChunkTemplate(300, 200, 300, true, true);
+        addChunkTemplate(worldStart, 200, 300, true, true);
 
         setEndOfWorld(endOfWorld + 500);
     }
