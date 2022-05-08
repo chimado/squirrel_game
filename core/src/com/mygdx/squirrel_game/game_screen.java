@@ -212,6 +212,9 @@ public class game_screen implements Screen {
             player.isAffectedByGravity = false;
         }
 
+        // checks if world generation should be activated and acts accordingly
+        if (worldGenerator.getEndOfWorld() - player.getX() < 1200) generatePlatforms();
+
         // changes the player's position if it's jumping or climbing
         if (Gdx.input.isKeyPressed(Keys.UP) && (player.canJump || player.canClimb)) player.moveYBy(250 * deltaTime);
 

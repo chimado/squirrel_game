@@ -8,7 +8,7 @@ import static com.mygdx.squirrel_game.game_screen.*;
 // outputs an array of chunk templates to fill platform objects with
 public class WorldGenerator {
     Array<ChunkTemplate> ChunkTemplateArray;
-    int endOfWorld; // stores the end of the world's x coordinate
+    private int endOfWorld; // stores the end of the world's x coordinate
 
     public WorldGenerator(int newEndOfWorld) {
         ChunkTemplateArray = new Array<ChunkTemplate>();
@@ -16,6 +16,7 @@ public class WorldGenerator {
     }
 
     public void changeEndOfWorld(int newEndOfWorld) {endOfWorld += newEndOfWorld;}
+    public int getEndOfWorld() {return endOfWorld;}
 
     public Array<ChunkTemplate> GenerateChunk(int chunkType) {
         if (!ChunkTemplateArray.isEmpty()) ChunkTemplateArray.clear();
@@ -59,7 +60,7 @@ public class WorldGenerator {
     // big jump with tree
     private void Chunk0() {
         addChunkTemplate(100, 500, true);
-        addChunkTemplate(450, 500, false);
+        addChunkTemplate(400, 500, false);
     }
 
     // big jump over void
