@@ -6,22 +6,19 @@ import com.badlogic.gdx.graphics.Texture;
 // this object stores information about individual platforms
 public class Platform extends GameObject{
     Texture platformTexture;
-    Boolean hasDirt;
     Boolean hasTree;
     Dirt dirt;
     Tree tree;
 
-    public Platform(float width, float height, float x, float y, Boolean hasDirt, Boolean hasTree) {
+    public Platform(float width, float height, float x, float y, Boolean hasTree) {
         super(width, height);
         super.x = x;
         super.y = y;
-        this.hasDirt = hasDirt;
+
         this.hasTree = hasTree;
         platformTexture = new Texture(Gdx.files.internal("grass_platform.png"));
 
-        if (hasDirt) {
-            dirt = new Dirt(width, y, x, 0);
-        }
+        dirt = new Dirt(width, y, x, 0);
 
         if (hasTree) {
             tree = new Tree(x, y);
@@ -48,9 +45,7 @@ public class Platform extends GameObject{
     public void dispose(){
         platformTexture.dispose();
 
-        if (hasDirt) {
-            dirt.dispose();
-        }
+        dirt.dispose();
 
         if (hasTree) {
             tree.dispose();

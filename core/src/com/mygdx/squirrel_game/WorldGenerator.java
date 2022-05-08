@@ -2,8 +2,7 @@ package com.mygdx.squirrel_game;
 
 import com.badlogic.gdx.utils.Array;
 
-import static com.mygdx.squirrel_game.game_screen.basePlatformHeight;
-import static com.mygdx.squirrel_game.game_screen.worldStart;
+import static com.mygdx.squirrel_game.game_screen.*;
 
 // is responsible for generating the world in the game screen
 // outputs an array of chunk templates to fill platform objects with
@@ -21,23 +20,43 @@ public class WorldGenerator {
     public Array<ChunkTemplate> GenerateChunk(int chunkType) {
         if (!ChunkTemplateArray.isEmpty()) ChunkTemplateArray.clear();
 
+        ChunkConnector();
+
         switch (chunkType) {
             case 0:
                 Chunk0();
                 break;
+
+            case 1:
+                Chunk1();
+                break;
         }
+
+        ChunkConnector();
 
         return ChunkTemplateArray;
     }
 
-    private void Chunk0() {
-        addChunkTemplate(worldStart, 200, 300, true, true);
+    // connects the chunks together, must be present at the end and start of each chunk
+    private void ChunkConnector() {addChunkTemplate(0, 500, false);}
 
-        setEndOfWorld(endOfWorld + 500);
+    // big jump with tree
+    private void Chunk0() {
+        addChunkTemplate(100, 500, true);
+        addChunkTemplate(450, 500, false);
+    }
+
+    private void Chunk1() {
+        addChunkTemplate(200, 400, false);
+        addChunkTemplate(400, 100, true);
+        addChunkTemplate(400, 400, false);
     }
 
     // adds a new chunk to the chunk template array
-    private void addChunkTemplate(int x, int y, int width, Boolean hasDirt, Boolean hasTree){
-        if (x + endOfWorld < worldStart) x = worldStart + endOfWorld; // makes sure no chunks will be created outside the world
-        ChunkTemplateArray.add(new ChunkTemplate(x, y, width, basePlatformHeight, hasDirt, hasTree));}
+    // x and y coordinates are relative to the current position of the end of the world
+    private void addChunkTemplate(int y, int width, Boolean hasTree){
+        ChunkTemplateArray.add(new ChunkTemplate(worldStart + endOfWorld, y + baseY, width, basePlatformHeight, hasTree));
+        setEndOfWorld(endOfWorld + width);
+    }
+
 }

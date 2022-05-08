@@ -47,7 +47,7 @@ public class game_screen implements Screen {
         chosenActions = new Array<ButtonManager.Action>();
         worldGenerator = new WorldGenerator(0);
 
-        platforms.add(new Platform(810, basePlatformHeight, baseY - 810, 900, true, false));
+        platforms.add(new Platform(810, basePlatformHeight, baseY - 810, 900, false));
         generatePlatforms();
 
         // create the camera and the viewport
@@ -93,10 +93,8 @@ public class game_screen implements Screen {
             if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.rect(platform.bounds.x, platform.bounds.y, platform.bounds.width, platform.bounds.height);
             game.batch.draw(platform.getPlatformTexture(), platform.x, platform.y, platform.width, platform.height);
 
-            if (platform.hasDirt) {
-                game.batch.draw(platform.getDirt().getDirtTexture(), platform.getDirt().x, platform.getDirt().y, platform.getDirt().width, platform.getDirt().height);
-                if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.rect(platform.getDirt().x, platform.getDirt().y, platform.getDirt().width, platform.getDirt().height);
-            }
+            game.batch.draw(platform.getDirt().getDirtTexture(), platform.getDirt().x, platform.getDirt().y, platform.getDirt().width, platform.getDirt().height);
+            if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.rect(platform.getDirt().x, platform.getDirt().y, platform.getDirt().width, platform.getDirt().height);
 
             if (platform.hasTree) {
                 game.batch.draw(platform.getTree().getTreeAnimation(deltaTime), platform.getTree().x, platform.getTree().y - 45, platform.getTree().width, platform.getTree().height);
@@ -154,7 +152,7 @@ public class game_screen implements Screen {
             else if (!player.canJump) player.canJump = false;
 
             // checks if the player is touching the dirt in order for it to not move through it
-            if (platform.hasDirt && player.bounds.overlaps(platform.getDirt().bounds) && platform.y - player.y > 10 && (Math.abs(player.x - platform.x) < 125 || Math.abs(player.x - (platform.x + platform.width)) > 20 && player.x > platform.x)) {
+            if (player.bounds.overlaps(platform.getDirt().bounds) && platform.y - player.y > 10 && (Math.abs(player.x - platform.x) < 125 || Math.abs(player.x - (platform.x + platform.width)) > 20 && player.x > platform.x)) {
                 player.moveXBy(player.getDX() * -1);
                 
                 // makes sure the player won't get stuck in the dirt
@@ -220,13 +218,6 @@ public class game_screen implements Screen {
         // flips the player back after the use of overlaps is over
         if (player.isFacingLeft) player.flip();
 
-        // the next two if statements are for debugging purposes only
-        // they reduce the number of game restarts necessary for development by making sure the player won't go out of bounds
-        if (player.y < -200) player.moveTo(player.x, 340);
-
-        if (player.x > worldWidth || player.x < 0) player.moveTo(600, player.y);
-
-
         // gets player input and updates the player's position
         player.moveXBy(0);
         if (player.state != squirrelState.Climbing && player.state != squirrelState.InTree){    
@@ -251,10 +242,10 @@ public class game_screen implements Screen {
 
     // generates new platforms using the world generation
     public void generatePlatforms() {
-        nextChunkID = 0; //(int) (Math.random() * 5);
+        nextChunkID = 1; //(int) (Math.random() * 5);
 
         for (ChunkTemplate chunk : worldGenerator.GenerateChunk(nextChunkID)) {
-            platforms.add(new Platform(chunk.width, chunk.height, chunk.x, chunk.y, chunk.hasDirt, chunk.hasTree));
+            platforms.add(new Platform(chunk.width, chunk.height, chunk.x, chunk.y, chunk.hasTree));
         }
     }
 
