@@ -22,8 +22,10 @@ public class game_screen implements Screen {
     final squirrel_game game;
     squirrel player;
     // stores the world's size
-    static final int worldWidth = 1280, worldHeight = 800;
-    
+    static final int worldWidth = 1280, worldHeight = 800,
+            baseY = 200, worldStart = 200, basePlatformHeight = 30;
+
+    int nextChunkID;
     OrthographicCamera camera;
     Viewport viewport;
     float deltaTime;
@@ -33,6 +35,7 @@ public class game_screen implements Screen {
     CameraView viewBox; // is followed by the camera, loosely follows the player
     Array<ButtonManager.Action> chosenActions;
     ButtonManager buttonManager;
+    WorldGenerator worldGenerator; // generates the world
 
     public game_screen(final squirrel_game game) {
         this.game = game;
@@ -40,15 +43,12 @@ public class game_screen implements Screen {
         deltaTime = 0;
         isPaused = false;
         platforms = new Array<Platform>();
-        viewBox = new CameraView(500, 400, player.x - 150, player.y - 150);
+        viewBox = new CameraView(400, 400, player.x - 150, player.y - 150);
         chosenActions = new Array<ButtonManager.Action>();
+        worldGenerator = new WorldGenerator(0);
 
-        // temporary initialization of the platforms array (in the future this will be replaced by a world generation algorithm)
-        for (int i = 0; i < 2; i++){
-            platforms.add(new Platform(300, 30, 400 + i * 200, 100 + i * 200, true, false));
-        }
-
-        platforms.add(new Platform(300, 30, 800, 100, true, true));
+        platforms.add(new Platform(810, basePlatformHeight, baseY - 810, 900, false));
+        generatePlatforms();
 
         // create the camera and the viewport
 		camera = new OrthographicCamera();
@@ -59,7 +59,7 @@ public class game_screen implements Screen {
         // initialize the button manager
         chosenActions.add(ButtonManager.Action.resume, ButtonManager.Action.main_menu);
         buttonManager = new ButtonManager(this.game, this.camera, this.chosenActions);
-        buttonManager.moveButtonBoundsXBy(-150);
+        buttonManager.moveButtonBoundsYBy(100);
     }
 
     @Override
@@ -69,15 +69,14 @@ public class game_screen implements Screen {
         deltaTime = Gdx.graphics.getDeltaTime();
 
         // pauses the game
-        if (isPaused){
-            deltaTime = 0;
-        }
+        if (isPaused) deltaTime = 0;
 
         // tell the camera to update its matrices.
-        camera.position.set(viewBox.x, viewBox.y + 300, 0);
+        camera.position.set(viewBox.x, 450, 0);
 		camera.update();
+        buttonManager.setCamera(camera);
 
-		// tell the SpriteBatch to render in the coordinate system specified by the camera.
+        // tell the SpriteBatch to render in the coordinate system specified by the camera.
 		game.batch.setProjectionMatrix(camera.combined);
         shapeRenderer.setProjectionMatrix(camera.combined);
 
@@ -94,10 +93,8 @@ public class game_screen implements Screen {
             if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.rect(platform.bounds.x, platform.bounds.y, platform.bounds.width, platform.bounds.height);
             game.batch.draw(platform.getPlatformTexture(), platform.x, platform.y, platform.width, platform.height);
 
-            if (platform.hasDirt) {
-                game.batch.draw(platform.getDirt().getDirtTexture(), platform.getDirt().x, platform.getDirt().y, platform.getDirt().width, platform.getDirt().height);
-                if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.rect(platform.getDirt().x, platform.getDirt().y, platform.getDirt().width, platform.getDirt().height);
-            }
+            game.batch.draw(platform.getDirt().getDirtTexture(), platform.getDirt().x, platform.getDirt().y, platform.getDirt().width, platform.getDirt().height);
+            if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.rect(platform.getDirt().x, platform.getDirt().y, platform.getDirt().width, platform.getDirt().height);
 
             if (platform.hasTree) {
                 game.batch.draw(platform.getTree().getTreeAnimation(deltaTime), platform.getTree().x, platform.getTree().y - 45, platform.getTree().width, platform.getTree().height);
@@ -110,7 +107,8 @@ public class game_screen implements Screen {
 
         // renders the buttons if the game is paused
         if (isPaused) {
-            buttonManager.renderButtons(-150, 0);
+            buttonManager.renderButtons(viewBox.x - 640, 100);
+            buttonManager.moveButtonBoundsXTo((int) viewBox.x);
             buttonManager.changeButtonActivation(true);
         }
         else {
@@ -123,9 +121,7 @@ public class game_screen implements Screen {
         if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.end();
 
         // the player needs to be facing right when calculating its position in order for the overlaps function to work
-        if (player.isFacingLeft) {
-            player.flip();
-        }
+        if (player.isFacingLeft) player.flip();
 
         player.isAffectedByGravity = true;
         player.canJump = false;
@@ -134,13 +130,9 @@ public class game_screen implements Screen {
 
         // updates the viewBox's position
         if (!viewBox.contains(player.bounds)) {
-            viewBox.x += player.getDX();
-            viewBox.y += player.getDY();
+            viewBox.moveBy(player.getDX(), player.getDY());
 
-            if (!viewBox.contains(player.bounds)) {
-                viewBox.x = player.x - 150;
-                viewBox.y = player.y - 150;
-            }
+            if (!viewBox.contains(player.bounds)) viewBox.moveTo(player.x - 150, player.y - 150);
         }
 
         // checks which platforms the player is touching and moves it accordingly
@@ -160,7 +152,7 @@ public class game_screen implements Screen {
             else if (!player.canJump) player.canJump = false;
 
             // checks if the player is touching the dirt in order for it to not move through it
-            if (platform.hasDirt && player.bounds.overlaps(platform.getDirt().bounds) && platform.y - player.y > 10 && (Math.abs(player.x - platform.x) < 125 || Math.abs(player.x - (platform.x + platform.width)) > 20 && player.x > platform.x)) {
+            if (player.bounds.overlaps(platform.getDirt().bounds) && platform.y - player.y > 10 && (Math.abs(player.x - platform.x) < 125 || Math.abs(player.x - (platform.x + platform.width)) > 20 && player.x > platform.x)) {
                 player.moveXBy(player.getDX() * -1);
                 
                 // makes sure the player won't get stuck in the dirt
@@ -220,23 +212,14 @@ public class game_screen implements Screen {
             player.isAffectedByGravity = false;
         }
 
+        // checks if world generation should be activated and acts accordingly
+        if (worldGenerator.getEndOfWorld() - player.getX() < 1200) generatePlatforms();
+
         // changes the player's position if it's jumping or climbing
         if (Gdx.input.isKeyPressed(Keys.UP) && (player.canJump || player.canClimb)) player.moveYBy(250 * deltaTime);
 
         // flips the player back after the use of overlaps is over
-        if (player.isFacingLeft) {
-            player.flip();
-        }
-
-        // the next two if statements are for debugging purposes only
-        // they reduce the number of game restarts necessary for development by making sure the player won't go out of bounds
-        if (player.y < -200){
-            player.moveTo(player.x, 340);
-        }
-
-        if (player.x > worldWidth || player.x < 0){
-            player.moveTo(600, player.y);
-        }
+        if (player.isFacingLeft) player.flip();
 
         // gets player input and updates the player's position
         player.moveXBy(0);
@@ -257,6 +240,15 @@ public class game_screen implements Screen {
             case resume:
                 isPaused = false;
                 break;
+        }
+    }
+
+    // generates new platforms using the world generation
+    public void generatePlatforms() {
+        nextChunkID = (int) (Math.random() * 5);
+
+        for (ChunkTemplate chunk : worldGenerator.GenerateChunk(nextChunkID)) {
+            platforms.add(new Platform(chunk.width, chunk.height, chunk.x, chunk.y, chunk.hasTree));
         }
     }
 
@@ -288,8 +280,6 @@ public class game_screen implements Screen {
 
         buttonManager.dispose();
 
-        for (Platform platform : platforms){
-            platform.dispose();
-        }
+        for (Platform platform : platforms) platform.dispose();
 	}
 }

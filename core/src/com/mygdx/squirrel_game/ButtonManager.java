@@ -78,11 +78,22 @@ public class ButtonManager {
         }
     }
 
-    // moves the buttons bounds by x
-    public void moveButtonBoundsXBy(int x) {
+    // moves the buttons bounds to x
+    public void moveButtonBoundsXTo(int x) {
         for (TreeLeafsButton leafButton : leafButtons) {
-            leafButton.bounds.x += x;
+            leafButton.bounds.x = x;
         }
+    }
+
+    // moves the buttons bounds by y
+    public void moveButtonBoundsYBy(int y) {
+        for (TreeLeafsButton leafButton : leafButtons) {
+            leafButton.bounds.y += y;
+        }
+    }
+
+    public void setCamera(OrthographicCamera newCamera){
+        this.camera = newCamera;
     }
 
     // changes the button activation, e.i if it can be pressed

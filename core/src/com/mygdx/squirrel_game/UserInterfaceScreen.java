@@ -75,7 +75,7 @@ public class UserInterfaceScreen implements Screen{
 
             for (Platform platform : platforms) {
                 shapeRenderer.rect(platform.bounds.x, platform.bounds.y, platform.bounds.width, platform.bounds.height);
-                if (platform.hasDirt) shapeRenderer.rect(platform.getDirt().bounds.x, platform.getDirt().bounds.y,
+                shapeRenderer.rect(platform.getDirt().bounds.x, platform.getDirt().bounds.y,
                         platform.getDirt().bounds.width, platform.getDirt().bounds.height);
             }
 
@@ -90,7 +90,7 @@ public class UserInterfaceScreen implements Screen{
 
         for (Platform platform : platforms) {
             game.batch.draw(platform.getPlatformTexture(), platform.x, platform.y, platform.width, platform.height);
-            if (platform.hasDirt) game.batch.draw(platform.getDirt().getDirtTexture(), platform.getDirt().x,
+            game.batch.draw(platform.getDirt().getDirtTexture(), platform.getDirt().x,
                     platform.getDirt().y, platform.getDirt().width, platform.getDirt().height);
         }
 
@@ -116,7 +116,7 @@ public class UserInterfaceScreen implements Screen{
     // generates the platforms for the main menu screen
     public void generatePlatforms(){
         for (int i = 0; i < 5; i++){
-            platforms.add(new Platform(300, 30, i * 300, 127, true, false));
+            platforms.add(new Platform(300, 30, i * 300, 127, false));
         }
     }
 
