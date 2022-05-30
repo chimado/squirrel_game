@@ -9,8 +9,8 @@ import static com.mygdx.squirrel_game.game_screen.worldStart;
 
 // is the enemy of the squirrel, every few seconds it tries to dive and catch the squirrel (player)
 public class eagle extends GameObject{
-    final float attackInterval = 3f, defaultY = 600;
-    float attackCounter = 0;
+    final float attackInterval = 3f, defaultY = 600, incrementalMovementModifier = 300;
+    float attackCounter = 0, deltaTime = 0;
     Boolean isDiving;
     Texture diveTexture;
     ObjectAnimation flightAnimation;
@@ -35,6 +35,7 @@ public class eagle extends GameObject{
     }
 
     public Texture getEagleTexture(float delta, Rectangle viewBox, squirrel player) {
+        deltaTime = delta;
 
         if(delta > 0){
             attackCounter += delta;
@@ -49,8 +50,8 @@ public class eagle extends GameObject{
                 moveIncrementallyToPosition(x, defaultY);
 
                 if ((x > viewBox.x + viewBox.width || (getDX() <= 0 && x > viewBox.x)) && x > worldStart + width)
-                    moveXBy(-5);
-                else moveXBy(5);
+                    moveXBy(-incrementalMovementModifier * deltaTime);
+                else moveXBy(incrementalMovementModifier * deltaTime);
             }
 
             // is starting dive
@@ -85,10 +86,10 @@ public class eagle extends GameObject{
     // moves the eagle towards a position by a small increment
     private void moveIncrementallyToPosition(float x, float y) {
         if(isCloseEnough(x, super.x)) moveTo(x, super.y);
-        else moveXBy(super.x > x ? -5 : 5);
+        else moveXBy(super.x > x ? -incrementalMovementModifier * deltaTime : incrementalMovementModifier * deltaTime);
 
         if(isCloseEnough(y, super.y)) moveTo(super.x, y);
-        else moveYBy(super.y > y ? -5 : 5);
+        else moveYBy(super.y > y ? -incrementalMovementModifier * deltaTime : incrementalMovementModifier * deltaTime);
     }
 
     // gets the position it thinks the player will be at during attack time
