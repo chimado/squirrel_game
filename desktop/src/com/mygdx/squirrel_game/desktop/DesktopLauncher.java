@@ -9,7 +9,9 @@ public class DesktopLauncher {
 	public static void main (String[] arg) {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		config.setTitle("Squirrel Game");
-		config.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
+		//config.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode()); enable if you want exclusive fullscreen
+		config.setWindowedMode(Lwjgl3ApplicationConfiguration.getDisplayMode().width, Lwjgl3ApplicationConfiguration.getDisplayMode().height);
+		config.setWindowIcon("bald_eagle1.png");
 		new Lwjgl3Application(new squirrel_game(), config);
 	}
 }
