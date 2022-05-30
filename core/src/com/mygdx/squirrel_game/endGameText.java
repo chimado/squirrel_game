@@ -11,8 +11,8 @@ public class endGameText {
     final squirrel_game game;
     // needs to account for offset created by player movement
     public final float maxDisplayCounterValue = 2.3f, yOffset = 200,
-            xFromNextNumberIncrement = 100, startY = 700, xOffsetFromOffset = 600;
-    public float displayCounter = 0, xOffset, xFromNextNumber = 100;
+            xFromNextNumberIncrement = 10, startY = 600, xOffsetFromOffset = -100;
+    public float displayCounter = 0, xOffset, xFromNextNumber = 60;
     // textures for the text
     Texture winMessage, scoreText;
     Array<Texture> score;
@@ -41,11 +41,11 @@ public class endGameText {
         game.batch.draw(scoreText, xOffset + xOffsetFromOffset, startY - yOffset);
 
         for (Texture num : score) {
-            game.batch.draw(num, xOffset + xOffsetFromOffset + xFromNextNumber, startY - yOffset);
+            game.batch.draw(num, xOffset + xOffsetFromOffset + xFromNextNumber, startY - yOffset + 20);
             xFromNextNumber += xFromNextNumberIncrement;
         }
 
-        xFromNextNumber = xFromNextNumberIncrement;
+        xFromNextNumber = xFromNextNumberIncrement * 6;
     }
 
     public Boolean isDisplayTimeOver(float delta) {
