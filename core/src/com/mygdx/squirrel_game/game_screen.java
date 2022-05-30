@@ -192,7 +192,7 @@ public class game_screen implements Screen {
 
                 // makes sure the player is at the x value of the tree it's climbing 
                 if (player.state == squirrelState.Climbing && player.bounds.overlaps(platform.getTree().bounds)) {
-                    player.moveXBy(platform.getTree().bounds.x + platform.getTree().bounds.width / 2 - player.x / 1.016f);
+                    player.moveXBy(platform.getTree().bounds.x + platform.getTree().bounds.width / 2 - player.x);
 
                     if (player.y < platform.getTree().y) {
                         player.moveYBy(50);
