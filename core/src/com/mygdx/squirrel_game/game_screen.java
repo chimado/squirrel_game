@@ -135,7 +135,7 @@ public class game_screen implements Screen {
         }
 
         // renders the eagle
-        game.batch.draw(enemy.getEagleTexture(deltaTime, viewBox), enemy.x, enemy.y, enemy.width, enemy.height);
+        game.batch.draw(enemy.getEagleTexture(deltaTime, viewBox, player), enemy.x, enemy.y, enemy.width, enemy.height);
 
         game.batch.end();
 
