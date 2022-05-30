@@ -27,7 +27,7 @@ public class ObjectAnimation {
             elapsedTime = 0;
         }
 
-        // makes sure the program won't call an element that's outside of the array bounds
+        // makes sure the program won't call an element that's outside the array bounds
         if (currentFrame >= frames.size - 1) {
             currentFrame = 0;
         }

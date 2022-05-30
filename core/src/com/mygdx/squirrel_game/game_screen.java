@@ -23,19 +23,20 @@ public class game_screen implements Screen {
     squirrel player;
     // stores the world's size
     static final int worldWidth = 1280, worldHeight = 800,
-            baseY = 200, worldStart = 200, basePlatformHeight = 30;
+            baseY = 200, worldStart = 200, basePlatformHeight = 30, winScore = 7;
 
     int nextChunkID, score;
     OrthographicCamera camera;
     Viewport viewport;
     float deltaTime;
-    Boolean isPaused;
+    Boolean isPaused, isEnding;
     Array<Platform> platforms; // stores the platforms for the game
     ShapeRenderer shapeRenderer; // is responsible for rendering the hitboxes for debugging purposes
     CameraView viewBox; // is followed by the camera, loosely follows the player
     Array<ButtonManager.Action> chosenActions;
     ButtonManager buttonManager;
     WorldGenerator worldGenerator; // generates the world
+    endGameText EndGameText; // displays the end game text
 
     public game_screen(final squirrel_game game) {
         this.game = game;
@@ -47,6 +48,8 @@ public class game_screen implements Screen {
         viewBox = new CameraView(400, 400, player.x - 150, player.y - 150);
         chosenActions = new Array<ButtonManager.Action>();
         worldGenerator = new WorldGenerator(0);
+        EndGameText = new endGameText(game);
+        isEnding = false;
 
         platforms.add(new Platform(810, basePlatformHeight, baseY - 810, 900, false, false, 0, 0));
         generatePlatforms();
@@ -112,7 +115,7 @@ public class game_screen implements Screen {
         else if (player.state == squirrelState.Climbing && player.state != squirrelState.InTree) game.batch.draw(player.render(deltaTime), player.x - 80, player.y - 23, player.width, player.height);
 
         // renders the buttons if the game is paused
-        if (isPaused) {
+        if (isPaused && !isEnding) {
             buttonManager.renderButtons(viewBox.x - 640, 100);
             buttonManager.moveButtonBoundsXTo((int) viewBox.x);
             buttonManager.changeButtonActivation(true);
@@ -120,6 +123,11 @@ public class game_screen implements Screen {
         else {
             buttonManager.renderButtons(-9000, -9000);
             buttonManager.changeButtonActivation(false);
+        }
+
+        // displays the end game text if the game is ending
+        if (isEnding) {
+            EndGameText.render();
         }
 
         game.batch.end();
@@ -243,14 +251,21 @@ public class game_screen implements Screen {
                     player.moveXBy(-200 * deltaTime);
             }
 
-            if (Gdx.input.isKeyJustPressed(Keys.ESCAPE)) isPaused = !isPaused;
+            if (Gdx.input.isKeyJustPressed(Keys.ESCAPE) && !isEnding) isPaused = !isPaused;
         }
 
         // flips the player back after the use of overlaps is over
         if (player.isFacingLeft) player.flip();
 
-        // check if the player is dead
-        if (player.state == squirrelState.Dead) {
+        // check if the player is dead/won to display the end game text
+        if ((player.state == squirrelState.Dead || score >= winScore) && !isEnding) {
+            EndGameText.initializeEndGameText(score, viewBox.x);
+            isEnding = true;
+            isPaused = true;
+        }
+
+        // check if the time for displaying the end game text is over
+        if (isEnding && EndGameText.isDisplayTimeOver(Gdx.graphics.getDeltaTime())) {
             dispose();
             game.setScreen(new game_screen(game));
         }
@@ -304,9 +319,8 @@ public class game_screen implements Screen {
 	@Override
 	public void dispose() {
         player.dispose();
-
         buttonManager.dispose();
-
         for (Platform platform : platforms) platform.dispose();
+        EndGameText.dispose();
 	}
 }
