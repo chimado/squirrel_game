@@ -21,6 +21,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 public class game_screen implements Screen {
     final squirrel_game game;
     squirrel player;
+    eagle enemy;
     // stores the world's size
     static final int worldWidth = 1280, worldHeight = 800,
             baseY = 200, worldStart = 200, basePlatformHeight = 30, winScore = 7;
@@ -41,6 +42,7 @@ public class game_screen implements Screen {
     public game_screen(final squirrel_game game) {
         this.game = game;
         player = new squirrel(worldStart + 100, baseY);
+        enemy = new eagle(worldStart + 200);
         deltaTime = 0;
         score = 0;
         isPaused = false;
@@ -89,6 +91,8 @@ public class game_screen implements Screen {
             shapeRenderer.begin(ShapeType.Line);
             shapeRenderer.setColor(Color.CYAN);
             shapeRenderer.rect(player.bounds.x, player.bounds.y, player.bounds.width, player.bounds.height);
+            shapeRenderer.rect(enemy.bounds.x, enemy.bounds.y, enemy.bounds.width, enemy.bounds.height);
+            shapeRenderer.rect(enemy.x, enemy.y, enemy.width, enemy.height);
         }
 
         game.batch.begin();
@@ -129,6 +133,9 @@ public class game_screen implements Screen {
         if (isEnding) {
             EndGameText.render();
         }
+
+        // renders the eagle
+        game.batch.draw(enemy.getEagleTexture(deltaTime), enemy.x, enemy.y, enemy.width, enemy.height);
 
         game.batch.end();
 
