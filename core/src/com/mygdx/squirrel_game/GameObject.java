@@ -2,7 +2,7 @@ package com.mygdx.squirrel_game;
 
 import com.badlogic.gdx.math.Rectangle;
 
-// gameobject is responsible for location and in the future object detection (rectangles/hitboxes)
+// game object is responsible for location and in the future object detection (rectangles/hitboxes)
 public abstract class GameObject extends Rectangle{
     private float dx, dy;
     Rectangle bounds; // used for collision detection

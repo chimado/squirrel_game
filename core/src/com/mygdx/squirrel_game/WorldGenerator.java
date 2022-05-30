@@ -55,57 +55,58 @@ public class WorldGenerator {
     }
 
     // connects the chunks together, must be present at the end and start of each chunk
-    private void ChunkConnector() {addChunkTemplate(0, 300, false);}
+    private void ChunkConnector() { addChunkTemplate(0, 300, false, false, 0, 0); }
 
     // big jump with tree
     private void Chunk0() {
-        addChunkTemplate(100, 500, true);
-        addChunkTemplate(400, 500, false);
+        addChunkTemplate(100, 500, true, true, 350, 300);
+        addChunkTemplate(400, 500, false, false, 0, 0);
     }
 
     // big jump over void
     private void Chunk1() {
-        addChunkTemplate(200, 400, false);
-        addChunkTemplate(400, 400, true);
-        addChunkTemplate(700, 100, false);
+        addChunkTemplate(200, 400, false, false, 0, 0);
+        addChunkTemplate(400, 400, true, false, 0, 0);
+        addChunkTemplate(700, 100, false, true, 200, -400);
         changeEndOfWorld(200);
     }
 
     // nice hill with trees
     private void Chunk2() {
-        addChunkTemplate(0, 500, true);
-        addChunkTemplate(100, 450, true);
+        addChunkTemplate(0, 500, true, false, 0, 0);
+        addChunkTemplate(100, 450, true, true, 160, 350);
     }
 
     // jump to higher place
     private void Chunk3() {
-        addChunkTemplate(100, 400, false);
+        addChunkTemplate(100, 400, false, true, 500, 100);
         changeEndOfWorld(300);
-        addChunkTemplate(200, 400, false);
+        addChunkTemplate(200, 400, false, false, 0, 0);
     }
 
     // double jump stairs
     private void Chunk4() {
-        addChunkTemplate(100, 400, false);
+        addChunkTemplate(100, 400, false, false, 0, 0);
         changeEndOfWorld(300);
-        addChunkTemplate(200, 400, false);
+        addChunkTemplate(200, 400, false, false, 0, 0);
         changeEndOfWorld(300);
-        addChunkTemplate(300, 400, false);
+        addChunkTemplate(300, 400, false, true, 400, -150);
     }
 
     // double jump stairs with trees and big jump at the end
     private void Chunk5() {
-        addChunkTemplate(0, 400, true);
-        addChunkTemplate(300, 400, true);
-        addChunkTemplate(600, 400, true);
-        addChunkTemplate(800, 100, false);
+        addChunkTemplate(0, 400, true, true, 300, 300);
+        addChunkTemplate(300, 400, true, false, 0, 0);
+        addChunkTemplate(600, 400, true, false, 0, 0);
+        addChunkTemplate(800, 100, false, true, 300, -400);
         changeEndOfWorld(200);
     }
 
     // adds a new chunk to the chunk template array
     // x and y coordinates are relative to the current position of the end of the world
-    private void addChunkTemplate(int y, int width, Boolean hasTree){
-        ChunkTemplateArray.add(new ChunkTemplate(worldStart + endOfWorld, y + baseY, width, basePlatformHeight, hasTree));
+    private void addChunkTemplate(int y, int width, Boolean hasTree, Boolean hasAcorn, int acornX, int acornY){
+        ChunkTemplateArray.add(new ChunkTemplate(worldStart + endOfWorld,
+                y + baseY, width, basePlatformHeight, hasTree, hasAcorn, acornX, acornY));
         changeEndOfWorld(width);
     }
 

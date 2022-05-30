@@ -28,7 +28,7 @@ public class Tree extends GameObject{
         if (isAnimated && treeAnimation.currentFrame != 10) return treeAnimation.getFrame(delta);
         else {
             isAnimated = false;
-            return treeAnimation.frames.get(0);
+            return treeAnimation.getSpecifiedFrame(0);
         }
     }
 

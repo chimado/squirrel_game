@@ -23,31 +23,35 @@ public class game_screen implements Screen {
     squirrel player;
     // stores the world's size
     static final int worldWidth = 1280, worldHeight = 800,
-            baseY = 200, worldStart = 200, basePlatformHeight = 30;
+            baseY = 200, worldStart = 200, basePlatformHeight = 30, winScore = 7;
 
-    int nextChunkID;
+    int nextChunkID, score;
     OrthographicCamera camera;
     Viewport viewport;
     float deltaTime;
-    Boolean isPaused;
+    Boolean isPaused, isEnding;
     Array<Platform> platforms; // stores the platforms for the game
     ShapeRenderer shapeRenderer; // is responsible for rendering the hitboxes for debugging purposes
     CameraView viewBox; // is followed by the camera, loosely follows the player
     Array<ButtonManager.Action> chosenActions;
     ButtonManager buttonManager;
     WorldGenerator worldGenerator; // generates the world
+    endGameText EndGameText; // displays the end game text
 
     public game_screen(final squirrel_game game) {
         this.game = game;
-        player = new squirrel(worldStart + 100, 300);
+        player = new squirrel(worldStart + 100, baseY);
         deltaTime = 0;
+        score = 0;
         isPaused = false;
         platforms = new Array<Platform>();
         viewBox = new CameraView(400, 400, player.x - 150, player.y - 150);
         chosenActions = new Array<ButtonManager.Action>();
         worldGenerator = new WorldGenerator(0);
+        EndGameText = new endGameText(game);
+        isEnding = false;
 
-        platforms.add(new Platform(810, basePlatformHeight, baseY - 810, 900, false));
+        platforms.add(new Platform(810, basePlatformHeight, baseY - 810, 900, false, false, 0, 0));
         generatePlatforms();
 
         // create the camera and the viewport
@@ -100,13 +104,18 @@ public class game_screen implements Screen {
                 game.batch.draw(platform.getTree().getTreeAnimation(deltaTime), platform.getTree().x, platform.getTree().y - 45, platform.getTree().width, platform.getTree().height);
                 if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.rect(platform.getTree().bounds.x, platform.getTree().bounds.y - 45, platform.getTree().bounds.width, platform.getTree().bounds.height);
             }
+
+            if (platform.hasAcorn){
+                game.batch.draw(platform.getAcorn().getAcornTexture(deltaTime), platform.getAcorn().x, platform.getAcorn().y, platform.getAcorn().width, platform.getAcorn().height);
+                if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.rect(platform.getAcorn().bounds.x, platform.getAcorn().bounds.y, platform.getAcorn().bounds.width, platform.getAcorn().bounds.height);
+            }
         }
 
         if (player.state != squirrelState.InTree && player.state != squirrelState.Climbing) game.batch.draw(player.render(deltaTime), player.x, player.y - 23, player.width, player.height);
         else if (player.state == squirrelState.Climbing && player.state != squirrelState.InTree) game.batch.draw(player.render(deltaTime), player.x - 80, player.y - 23, player.width, player.height);
 
         // renders the buttons if the game is paused
-        if (isPaused) {
+        if (isPaused && !isEnding) {
             buttonManager.renderButtons(viewBox.x - 640, 100);
             buttonManager.moveButtonBoundsXTo((int) viewBox.x);
             buttonManager.changeButtonActivation(true);
@@ -114,6 +123,11 @@ public class game_screen implements Screen {
         else {
             buttonManager.renderButtons(-9000, -9000);
             buttonManager.changeButtonActivation(false);
+        }
+
+        // displays the end game text if the game is ending
+        if (isEnding) {
+            EndGameText.render();
         }
 
         game.batch.end();
@@ -148,7 +162,8 @@ public class game_screen implements Screen {
             if (player.state == squirrelState.Climbing || player.state == squirrelState.InTree) player.isAffectedByGravity = false;
 
             // checks if the player can jump
-            if (((player.bounds.overlaps(platform.bounds) || player.state == squirrelState.Jumping) && 10 * deltaTime * (float)Math.pow(player.fallTime, 4) < 250 * deltaTime) || player.state == squirrelState.InTree) player.canJump = true;
+            if (((player.bounds.overlaps(platform.bounds) || player.state == squirrelState.Jumping) && 10 * deltaTime * (float)Math.pow(player.fallTime, 4) < 250 * deltaTime) || player.state == squirrelState.InTree)
+                player.canJump = true;
             else if (!player.canJump) player.canJump = false;
 
             // checks if the player is touching the dirt in order for it to not move through it
@@ -186,7 +201,7 @@ public class game_screen implements Screen {
 
                 // makes sure the player is at the x value of the tree it's climbing 
                 if (player.state == squirrelState.Climbing && player.bounds.overlaps(platform.getTree().bounds)) {
-                    player.moveXBy(platform.getTree().bounds.x + platform.getTree().bounds.width / 2 - player.x / 1.016f);
+                    player.moveXBy(platform.getTree().bounds.x + platform.getTree().bounds.width / 2 - player.x);
 
                     if (player.y < platform.getTree().y) {
                         player.moveYBy(50);
@@ -195,6 +210,12 @@ public class game_screen implements Screen {
 
                 // checks if the player has reached the top of the tree
                 if (platform.getTree().bounds.y + platform.getTree().bounds.height < player.bounds.y * 1.2f && player.state == squirrelState.Climbing && player.bounds.overlaps(platform.getTree().bounds)) player.state = squirrelState.InTree;
+            }
+
+            // checks if a given acorn should be animated
+            if (platform.hasAcorn && player.bounds.overlaps(platform.getAcorn().bounds) && platform.getAcorn().isAnimated == false) {
+                platform.getAcorn().animateAcorn();
+                score++;
             }
         }
 
@@ -215,20 +236,39 @@ public class game_screen implements Screen {
         // checks if world generation should be activated and acts accordingly
         if (worldGenerator.getEndOfWorld() - player.getX() < 1200) generatePlatforms();
 
-        // changes the player's position if it's jumping or climbing
-        if (Gdx.input.isKeyPressed(Keys.UP) && (player.canJump || player.canClimb)) player.moveYBy(250 * deltaTime);
+        if (player.state != squirrelState.Dead)
+        {
+            // changes the player's position if it's jumping or climbing
+            if (Gdx.input.isKeyPressed(Keys.UP) && (player.canJump || player.canClimb) && player.getDY() < 150)
+                player.moveYBy(250 * deltaTime);
+
+            // gets player input and updates the player's position
+            player.moveXBy(0);
+            if (player.state != squirrelState.Climbing && player.state != squirrelState.InTree) {
+                if (Gdx.input.isKeyPressed(Keys.RIGHT) && !Gdx.input.isKeyPressed(Keys.LEFT))
+                    player.moveXBy(200 * deltaTime);
+                if (Gdx.input.isKeyPressed(Keys.LEFT) && !Gdx.input.isKeyPressed(Keys.RIGHT))
+                    player.moveXBy(-200 * deltaTime);
+            }
+
+            if (Gdx.input.isKeyJustPressed(Keys.ESCAPE) && !isEnding) isPaused = !isPaused;
+        }
 
         // flips the player back after the use of overlaps is over
         if (player.isFacingLeft) player.flip();
 
-        // gets player input and updates the player's position
-        player.moveXBy(0);
-        if (player.state != squirrelState.Climbing && player.state != squirrelState.InTree){    
-            if (Gdx.input.isKeyPressed(Keys.RIGHT) && !Gdx.input.isKeyPressed(Keys.LEFT)) player.moveXBy(200 * deltaTime);
-            if (Gdx.input.isKeyPressed(Keys.LEFT) && !Gdx.input.isKeyPressed(Keys.RIGHT)) player.moveXBy(-200 * deltaTime);
+        // check if the player is dead/won to display the end game text
+        if ((player.state == squirrelState.Dead || score >= winScore) && !isEnding) {
+            EndGameText.initializeEndGameText(score, viewBox.x);
+            isEnding = true;
+            isPaused = true;
         }
 
-        if (Gdx.input.isKeyJustPressed(Keys.ESCAPE)) isPaused = !isPaused;
+        // check if the time for displaying the end game text is over
+        if (isEnding && EndGameText.isDisplayTimeOver(Gdx.graphics.getDeltaTime())) {
+            dispose();
+            game.setScreen(new game_screen(game));
+        }
 
         // check which action to do according to the buttons
         switch (buttonManager.currentAction) {
@@ -248,7 +288,9 @@ public class game_screen implements Screen {
         nextChunkID = (int) (Math.random() * 5);
 
         for (ChunkTemplate chunk : worldGenerator.GenerateChunk(nextChunkID)) {
-            platforms.add(new Platform(chunk.width, chunk.height, chunk.x, chunk.y, chunk.hasTree));
+            platforms.add(new Platform(chunk.width, chunk.height, chunk.x, chunk.y,
+                    chunk.hasTree, ((int)(Math.random() * 10) % 2 == 1) || ((int)(Math.random() * 10) % 3 == 1) ? chunk.hasAcorn : false
+                    , chunk.acornX, chunk.acornY));
         }
     }
 
@@ -277,9 +319,8 @@ public class game_screen implements Screen {
 	@Override
 	public void dispose() {
         player.dispose();
-
         buttonManager.dispose();
-
         for (Platform platform : platforms) platform.dispose();
+        EndGameText.dispose();
 	}
 }

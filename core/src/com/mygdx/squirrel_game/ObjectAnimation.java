@@ -27,12 +27,17 @@ public class ObjectAnimation {
             elapsedTime = 0;
         }
 
-        // makes sure the program won't call an element that's outside of the array bounds
+        // makes sure the program won't call an element that's outside the array bounds
         if (currentFrame >= frames.size - 1) {
             currentFrame = 0;
         }
 
         return frames.get(currentFrame);
+    }
+
+    // returns a specified frame
+    public Texture getSpecifiedFrame(int index) {
+        return frames.get(index);
     }
 
     // resets the animation
