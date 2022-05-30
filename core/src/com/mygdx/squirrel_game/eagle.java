@@ -4,6 +4,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Rectangle;
 
+import static com.mygdx.squirrel_game.game_screen.worldStart;
+
 // is the enemy of the squirrel, every few seconds it tries to dive and catch the squirrel (player)
 public class eagle extends GameObject{
     final float attackInterval = 3f, defaultY = 550;
@@ -25,6 +27,14 @@ public class eagle extends GameObject{
     }
 
     public Texture getEagleTexture(float delta) {
+        if(!isDiving) return flightAnimation.getFrame(delta);
+        else return diveTexture;
+    }
+
+    public Texture getEagleTexture(float delta, Rectangle viewBox) {
+        if((x > viewBox.x + viewBox.width || (getDX() <= 0 && x > viewBox.x)) && x > worldStart + width) moveXBy(-5);
+        else moveXBy(5);
+
         if(!isDiving) return flightAnimation.getFrame(delta);
         else return diveTexture;
     }

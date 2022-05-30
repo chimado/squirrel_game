@@ -135,7 +135,7 @@ public class game_screen implements Screen {
         }
 
         // renders the eagle
-        game.batch.draw(enemy.getEagleTexture(deltaTime), enemy.x, enemy.y, enemy.width, enemy.height);
+        game.batch.draw(enemy.getEagleTexture(deltaTime, viewBox), enemy.x, enemy.y, enemy.width, enemy.height);
 
         game.batch.end();
 
@@ -246,7 +246,7 @@ public class game_screen implements Screen {
         if (player.state != squirrelState.Dead)
         {
             // changes the player's position if it's jumping or climbing
-            if (Gdx.input.isKeyPressed(Keys.UP) && (player.canJump || player.canClimb) && player.getDY() < 150)
+            if ((Gdx.input.isKeyPressed(Keys.UP) && (player.canJump || player.canClimb) && player.getDY() < 150) || player.fallTime > 4)
                 player.moveYBy(250 * deltaTime);
 
             // gets player input and updates the player's position
