@@ -261,6 +261,11 @@ public class game_screen implements Screen {
             if (Gdx.input.isKeyJustPressed(Keys.ESCAPE) && !isEnding) isPaused = !isPaused;
         }
 
+        // checks if the enemy caught the player
+        if(player.bounds.overlaps(enemy.bounds) && enemy.isDiving) {
+            player.state = squirrelState.Dead;
+        }
+
         // flips the player back after the use of overlaps is over
         if (player.isFacingLeft) player.flip();
 

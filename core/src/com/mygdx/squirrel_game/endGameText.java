@@ -10,7 +10,7 @@ import static com.mygdx.squirrel_game.game_screen.winScore;
 public class endGameText {
     final squirrel_game game;
     // needs to account for offset created by player movement
-    public final float maxDisplayCounterValue = 2.3f, yOffset = 200,
+    public final float maxDisplayCounterValue = 4f, yOffset = 200,
             xFromNextNumberIncrement = 10, startY = 600, xOffsetFromOffset = -100;
     public float displayCounter = 0, xOffset, xFromNextNumber = 60;
     // textures for the text
@@ -31,6 +31,8 @@ public class endGameText {
 
         for (int i = score; i > 0; i /= 10)
             this.score.add(new Texture(Gdx.files.internal("num" + (i % 10) + ".png")));
+
+        if(score == 0) this.score.add(new Texture(Gdx.files.internal("num0.png")));
 
         xOffset = x;
     }

@@ -185,7 +185,7 @@ public class squirrel extends GameObject{
                 break;
 
             case Dead:
-                squirrel_running_animation.getSpecifiedFrame(5);
+                outputTexture = squirrel_running_animation.getSpecifiedFrame(5);
                 squirrel_climbing_animation.resetAnimation();
                 squirrel_idle_animation.resetAnimation();
                 squirrel_jumping_animation.resetAnimation();

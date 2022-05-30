@@ -36,35 +36,39 @@ public class eagle extends GameObject{
 
     public Texture getEagleTexture(float delta, Rectangle viewBox, squirrel player) {
 
-        attackCounter += delta;
-        if(attackCounter >= attackInterval || isDiving) {
-            attackCounter = 0;
-            isDiving = true;
-        }
+        if(delta > 0){
+            attackCounter += delta;
+            if (attackCounter >= attackInterval || isDiving) {
+                attackCounter = 0;
+                isDiving = true;
+            }
 
-        // check if it's diving and dive/patrol accordingly
-        if(!isDiving){
-            attackPosition.x = 0;
-            moveIncrementallyToPosition(x, defaultY);
+            // check if it's diving and dive/patrol accordingly
+            if (!isDiving) {
+                attackPosition.x = 0;
+                moveIncrementallyToPosition(x, defaultY);
 
-            if ((x > viewBox.x + viewBox.width || (getDX() <= 0 && x > viewBox.x)) && x > worldStart + width)
-                moveXBy(-5);
-            else moveXBy(5);
-        }
+                if ((x > viewBox.x + viewBox.width || (getDX() <= 0 && x > viewBox.x)) && x > worldStart + width)
+                    moveXBy(-5);
+                else moveXBy(5);
+            }
 
-        // is starting dive
-        else if(attackPosition.x < worldStart) {
-            attackPosition.set(getAttackPosition(player));
-        }
+            // is starting dive
+            else if (attackPosition.x < worldStart) {
+                attackPosition.set(getAttackPosition(player));
+            }
 
-        // is ending dive
-        else if(isCloseEnough(attackPosition.x, x) && isCloseEnough(attackPosition.y, y)) {
-            isDiving = false;
-        }
+            // is ending dive
+            else if (isCloseEnough(attackPosition.x, x) && isCloseEnough(attackPosition.y, y)) {
+                isDiving = false;
+            }
 
-        // is mid-dive
-        else {
-            moveIncrementallyToPosition(attackPosition.x, attackPosition.y);
+            // is mid-dive
+            else {
+                if (!isCloseEnough(attackPosition.y, y))
+                    moveIncrementallyToPosition(attackPosition.x, attackPosition.y);
+                else isDiving = false;
+            }
         }
 
         updateBounds();
