@@ -141,6 +141,10 @@ public class game_screen implements Screen {
 
         if (Gdx.input.isKeyPressed(Keys.SPACE)) shapeRenderer.end();
 
+        // updates the viewBox's position
+        if (viewBox.x + viewBox.width < player.bounds.x + player.bounds.width || viewBox.x - 50 > player.bounds.x + player.bounds.width)
+            viewBox.moveXBy(player.getDX());
+
         // the player needs to be facing right when calculating its position in order for the overlaps function to work
         if (player.isFacingLeft) player.flip();
 
@@ -148,13 +152,6 @@ public class game_screen implements Screen {
         player.canJump = false;
         player.canClimb = false;
         player.inTreeTime += deltaTime;
-
-        // updates the viewBox's position
-        if (!viewBox.contains(player.bounds)) {
-            viewBox.moveBy(player.getDX(), player.getDY());
-
-            if (!viewBox.contains(player.bounds)) viewBox.moveTo(player.x - 150, player.y - 150);
-        }
 
         // checks which platforms the player is touching and moves it accordingly
         for (Platform platform : platforms) {
