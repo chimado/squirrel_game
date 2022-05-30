@@ -247,6 +247,12 @@ public class game_screen implements Screen {
         // flips the player back after the use of overlaps is over
         if (player.isFacingLeft) player.flip();
 
+        // check if the player is dead
+        if (player.state == squirrelState.Dead) {
+            dispose();
+            game.setScreen(new game_screen(game));
+        }
+
         // check which action to do according to the buttons
         switch (buttonManager.currentAction) {
             case main_menu:
@@ -266,7 +272,7 @@ public class game_screen implements Screen {
 
         for (ChunkTemplate chunk : worldGenerator.GenerateChunk(nextChunkID)) {
             platforms.add(new Platform(chunk.width, chunk.height, chunk.x, chunk.y,
-                    chunk.hasTree, (int) (Math.random() * 10) % 2 == 1 ? chunk.hasAcorn : false
+                    chunk.hasTree, ((int)(Math.random() * 10) % 2 == 1) || ((int)(Math.random() * 10) % 3 == 1) ? chunk.hasAcorn : false
                     , chunk.acornX, chunk.acornY));
         }
     }
