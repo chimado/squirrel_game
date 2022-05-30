@@ -17,6 +17,13 @@ public class ObjectAnimation {
         elapsedTime = 0;
     }
 
+    public ObjectAnimation(String fileName, int frameAmount){
+        frames = new Array<Texture>();
+        currentFrame = 0;
+        elapsedTime = 0;
+        this.loadAnimation(fileName, frameAmount);
+    }
+
     // returns the current frame
     public Texture getFrame(float delta) {
         elapsedTime += delta;
