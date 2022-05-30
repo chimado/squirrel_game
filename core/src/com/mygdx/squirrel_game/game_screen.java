@@ -154,7 +154,8 @@ public class game_screen implements Screen {
             if (player.state == squirrelState.Climbing || player.state == squirrelState.InTree) player.isAffectedByGravity = false;
 
             // checks if the player can jump
-            if (((player.bounds.overlaps(platform.bounds) || player.state == squirrelState.Jumping) && 10 * deltaTime * (float)Math.pow(player.fallTime, 4) < 250 * deltaTime) || player.state == squirrelState.InTree) player.canJump = true;
+            if (((player.bounds.overlaps(platform.bounds) || player.state == squirrelState.Jumping) && 10 * deltaTime * (float)Math.pow(player.fallTime, 4) < 250 * deltaTime) || player.state == squirrelState.InTree)
+                player.canJump = true;
             else if (!player.canJump) player.canJump = false;
 
             // checks if the player is touching the dirt in order for it to not move through it
@@ -230,7 +231,8 @@ public class game_screen implements Screen {
         if (player.state != squirrelState.Dead)
         {
             // changes the player's position if it's jumping or climbing
-            if (Gdx.input.isKeyPressed(Keys.UP) && (player.canJump || player.canClimb)) player.moveYBy(250 * deltaTime);
+            if (Gdx.input.isKeyPressed(Keys.UP) && (player.canJump || player.canClimb) && player.getDY() < 150)
+                player.moveYBy(250 * deltaTime);
 
             // gets player input and updates the player's position
             player.moveXBy(0);
