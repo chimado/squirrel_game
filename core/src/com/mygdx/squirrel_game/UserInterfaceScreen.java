@@ -19,8 +19,9 @@ import static com.mygdx.squirrel_game.game_screen.worldHeight;
 public class UserInterfaceScreen implements Screen{
     final squirrel_game game;
 
-    static final int playerStartingX = 200, playerStartingY = 100;
+    static final int playerStartingX = 200, playerStartingY = 100, enemyStartingX = 900;
     squirrel player;
+    eagle enemy;
     Array<Platform> platforms; // stores the platforms for the main menu screen
     OrthographicCamera camera;
     Viewport viewport;
@@ -33,6 +34,7 @@ public class UserInterfaceScreen implements Screen{
         this.game = game;
         deltaTime = 0;
         player = new squirrel(playerStartingX, playerStartingY);
+        enemy = new eagle(enemyStartingX);
         platforms = new Array<Platform>();
         chosenActions = new Array<ButtonManager.Action>();
 
@@ -67,26 +69,13 @@ public class UserInterfaceScreen implements Screen{
         // Render objects for background
         game.batch.begin();
 
-        // show hitboxes for debugging purposes
-        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-            shapeRenderer.setColor(Color.CYAN);
-            shapeRenderer.rect(player.bounds.x, player.bounds.y, player.bounds.width, player.bounds.height);
-
-            for (Platform platform : platforms) {
-                shapeRenderer.rect(platform.bounds.x, platform.bounds.y, platform.bounds.width, platform.bounds.height);
-                shapeRenderer.rect(platform.getDirt().bounds.x, platform.getDirt().bounds.y,
-                        platform.getDirt().bounds.width, platform.getDirt().bounds.height);
-            }
-
-            shapeRenderer.end();
-        }
-
         buttonManager.renderButtons(0, 0);
 
         game.batch.draw(player.render(deltaTime +
                         (buttonManager.mouseClick(player.bounds) ? 2f : (player.idle_animation_time <= 2f ? -deltaTime : 0))
                         ), player.x, player.y, player.width, player.height);
+
+        game.batch.draw(enemy.getEagleTexture(deltaTime), enemy.x, enemy.y, enemy.width, enemy.height);
 
         for (Platform platform : platforms) {
             game.batch.draw(platform.getPlatformTexture(), platform.x, platform.y, platform.width, platform.height);
@@ -151,5 +140,6 @@ public class UserInterfaceScreen implements Screen{
         buttonManager.dispose();
 
         player.dispose();
+        enemy.dispose();
     }
 }

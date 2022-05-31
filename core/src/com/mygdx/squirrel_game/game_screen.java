@@ -328,6 +328,7 @@ public class game_screen implements Screen {
 	@Override
 	public void dispose() {
         player.dispose();
+        enemy.dispose();
         buttonManager.dispose();
         for (Platform platform : platforms) platform.dispose();
         EndGameText.dispose();
